@@ -6,11 +6,13 @@ import torch.nn.functional as F
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 import pytorch_lightning as pl
 
+from src.model_modules import *
+
 #### VSR Models ####
 
 """ VSR Transformer Encoder 1 """
 class VSRTE1(pl.LightningModule):
-    def __init__(self, c, h, w, embed_dim, n_head, h_dim, n_layers, dropout=0.5):
+    def __init__(self, name, c, h, w, embed_dim, n_head, h_dim, n_layers, dropout=0.5):
         super(VSRTE1, self).__init__()
         self.model_type = 'Transformer'
         self.pos_encoder = PositionalEncoding(embed_dim, dropout)
@@ -19,6 +21,8 @@ class VSRTE1(pl.LightningModule):
         self.frame_encoder = FrameSeqEncoder(c, h, w, embed_dim)
         self.embed_dim = embed_dim
         self.frame_decoder = FrameSeqDecoder(c, h, w, embed_dim)
+
+        self.name = name
 
     def set_src_mask(self, sz):
         self.src_mask = self.generate_square_subsequent_mask(sz)
@@ -65,7 +69,7 @@ class VSRTE1(pl.LightningModule):
         x, y = val_batch
         outputs = self.forward(x, self.src_mask)
         loss = self.mse_loss(outputs[outputs.shape[0]//2], y[y.shape[0]//2])
-        self.log('val_loss', loss)
+        self.log('valid_loss', loss)
 
     def configure_optimizers(self):
       optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)

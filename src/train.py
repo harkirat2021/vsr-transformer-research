@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import yaml
 
 import torch
 import torch.nn as nn
@@ -7,18 +8,17 @@ import torch.nn.functional as F
 
 from src.models import *
 
-""" Run training """
-def train(data_module, seq_len, gpus):
-    print("Training...")
+# Get all config values
+with open("config.yml", "r") as ymlfile:
+    config = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-    # Init model
-    model = VSRTE1(c=3, h=36, w=64, embed_dim=8, n_head=4, h_dim=20, n_layers=2, dropout=0.5)
-    model.set_src_mask(seq_len)
+""" Run training """
+def train(model, data_module, max_epochs, gpus, save=True, experiment_name=""):
+    # Init logger
+    tb_logger = pl.loggers.TensorBoardLogger(config["EXPERIMENT_SAVE_DIR"], name=model.name)
 
     # Train
-    trainer = pl.Trainer(gpus=gpus, max_epochs=5)
+    trainer = pl.Trainer(logger=(tb_logger if save else False), gpus=gpus, max_epochs=max_epochs, checkpoint_callback=save, check_val_every_n_epoch=config["CHECKPOINT_VALID_EVERY_N_EPOCH"])
     trainer.fit(model, data_module)
 
-    print("Done")
-
-    return trainer, model
+    return model

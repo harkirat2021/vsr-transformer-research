@@ -1,2 +1,10 @@
 
+# Paths
+EXPERIMENT_SAVE_DIR: "experiments"
+
+# Data
 SEQ_LEN: 5
+PATCH_SHAPE: [8, 8]
+
+# Training
+CHECKPOINT_VALID_EVERY_N_EPOCH: 2

@@ -1,4 +1,5 @@
 from math import *
+import numpy as np
 
 import torch
 import torch.nn as nn
@@ -6,7 +7,7 @@ import torch.nn.functional as F
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 import torch.nn as nn
 
-## # WARNING: This is for small numbers, otherwise, it will be very slow.
+# WARNING: This is for small numbers, otherwise, it will be very slow.
 # A function to calculate all prime factors of
 # a given number n
 def primeFactors(n):
@@ -220,7 +221,7 @@ class PositionalEncoding(nn.Module):
 
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-log(10000.0) / d_model))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0).transpose(0, 1)
@@ -336,7 +337,7 @@ class TransformerModel(nn.Module):
         return mask
 
     def forward(self, src, src_mask):
-        src = self.frame_encoder(src) * math.sqrt(self.embed_dim)
+        src = self.frame_encoder(src) * sqrt(self.embed_dim)
         src = self.pos_encoder(src)
         output = self.transformer_encoder(src, src_mask)
         output = self.frame_decoder(output)

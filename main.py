@@ -4,27 +4,35 @@ import yaml
 
 from src.train import *
 from src.evaluate import *
-from src.process_video import *
+from src.process_data import *
 from src.data import *
 
 parser = argparse.ArgumentParser(description="Run the deep Q trading agent")
 parser.add_argument('--task', type=str, help="'train' or 'evaluate'")
+args = parser.parse_args()
 
 # Get all config values
 with open("config.yml", "r") as ymlfile:
     config = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 if __name__ == "__main__":
-    print("Loading video...")
-    # TEMP
-    video = get_video_data("data/temp/the_muffin_man.mp4", 400, (64, 36))
-    data_module = VideoDataModule(video, config["SEQ_LEN"])
-    train(data_module=data_module, seq_len=config["SEQ_LEN"], gpus=0)
+    # Init data
+    print("Loading data...")
+    data_module = VideoDataModule(train_data_path="data/temp/the_muffin_man.hdf5", valid_data_path="data/temp/the_muffin_man.hdf5", seq_len=config["SEQ_LEN"], patch_shape=config["PATCH_SHAPE"])
 
-    """
+    # Init model - TODO option to load from checkpoint
+    print("Initializing model...")
+    model = VSRTE1(name="sample_model", c=3, h=8, w=8, embed_dim=8, n_head=4, h_dim=20, n_layers=2, dropout=0.5)
+    model.set_src_mask(config["SEQ_LEN"])
+    
     if args.task == "train":
-        train(data_module=data_module, seq_len=config["SEQ_LEN"], gpus=0)
+        print("Training...")
+        model = train(model=model, data_module=data_module, max_epochs=2, gpus=0, save=False)
 
-    elif args.task == "evaluate":
-        evaluate(data_module=data_module, gpus=0)
-    """
+    elif args.task == "eval":
+        # TODO - save to file
+        print("Evaluating...")
+        psnr, ssim = evaluate(model=model, data_module=data_module)
+        print("PSNR: {} SSIM: {}".format(psnr, ssim))
+    
+    print("Done")

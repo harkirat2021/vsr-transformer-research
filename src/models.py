@@ -10,22 +10,25 @@ from src.model_modules import *
 
 #### VSR Models ####
 
-""" VSR Transformer Encoder 1 """
 class VSRTE1(pl.LightningModule):
-    def __init__(self, name, c, h, w, embed_dim, n_head, h_dim, n_layers, dropout=0.5):
+    def __init__(self, name, t, c, h, w, embed_dim, n_head, h_dim, n_layers, dropout=0.5):
         super(VSRTE1, self).__init__()
         self.model_type = 'Transformer'
+        self.name = name
+
+        self.embed_dim = embed_dim
+
         self.pos_encoder = PositionalEncoding(embed_dim, dropout)
         encoder_layers = TransformerEncoderLayer(embed_dim, n_head, h_dim, dropout)
         self.transformer_encoder = TransformerEncoder(encoder_layers, n_layers)
+
         self.frame_encoder = FrameSeqEncoder(c, h, w, embed_dim)
-        self.embed_dim = embed_dim
         self.frame_decoder = FrameSeqDecoder(c, h, w, embed_dim)
 
-        self.name = name
+        self.upsample = UpsampleSeqLayer(t, c, 3)
 
-    def set_src_mask(self, sz):
-        self.src_mask = self.generate_square_subsequent_mask(sz)
+        # Mask for now - sequence doesn't really make sense here does it?
+        self.src_mask = self.generate_empty_mask(t)
 
     def generate_square_subsequent_mask(self, sz):
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
@@ -36,22 +39,21 @@ class VSRTE1(pl.LightningModule):
         mask = torch.zeros((sz, sz)).transpose(0, 1)
         return mask
 
-    def forward(self, src, src_mask):
+    def forward(self, src):
         # Swap batch and sequence dimension
         src = torch.transpose(src, 0, 1)
 
+        # Forwad pass
         x = self.frame_encoder(src) * math.sqrt(self.embed_dim)
         x = self.pos_encoder(x)
-        output = self.transformer_encoder(x, src_mask)
-        output = self.frame_decoder(output)
-
-        # Residual connection
-        output += src
+        x = self.transformer_encoder(x, self.src_mask)
+        x = self.frame_decoder(x)
+        y = self.upsample(x)
 
         # Swap back batch and sequence dimension
-        output = torch.transpose(output, 0, 1)
+        y = torch.transpose(y, 0, 1)
 
-        return output
+        return y
     
     ### Pytorch Lightning functions ###
 
@@ -61,14 +63,15 @@ class VSRTE1(pl.LightningModule):
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
         outputs = self.forward(x, self.src_mask)
-        loss = self.mse_loss(outputs[outputs.shape[0]//2], y[y.shape[0]//2])
+        # Compute loss between all, but first and last frame
+        loss = self.mse_loss(outputs[1:-1], y[1:-1])
         self.log('train_loss', loss)
         return loss
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
         outputs = self.forward(x, self.src_mask)
-        loss = self.mse_loss(outputs[outputs.shape[0]//2], y[y.shape[0]//2])
+        loss = self.mse_loss(outputs[1:-1], y[1:-1])
         self.log('valid_loss', loss)
 
     def configure_optimizers(self):

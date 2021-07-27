@@ -55,8 +55,6 @@ class UpsampleLayer(nn.Module):
 
         factors = primeFactors(factor)
 
-        print (factors)
-
         for n, i in factors.items():
             for j in range(i):
                 self.add_factor(n)
@@ -67,7 +65,7 @@ class UpsampleLayer(nn.Module):
         self.add_module('upsample_%d'%self.n_factors,
             nn.Sequential(
                 nn.Conv2d(self.n_features, self.n_features*(n**2),
-                          self.k, padding=self.pad),
+                          self.k, padding="same"),
                 nn.PixelShuffle(n),
                 self.act_class(**self.act_params),
             )

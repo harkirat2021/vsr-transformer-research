@@ -57,8 +57,11 @@ def prepare_patches(data, patch_shape):
     # TODO - shape safety check
 
     # Split patches
+    print("o", data[0,0, 0, :8, :8])
     data = np.array(np.split(data, data.shape[3] / patch_shape[0], axis=3))
+    print("h", data[0, 0, 0, 0, :, :8])
     data = np.array(np.split(data, data.shape[5] / patch_shape[1], axis=5))
+    print("v", data[0, 0, 0, 0, 0, :, :])
 
     # Merge patche dimensions
     data = data.reshape((data.shape[0] * data.shape[1] * data.shape[2], *data.shape[3:]))
@@ -83,14 +86,30 @@ def batchify(video, seq_len, batch_size):
     return x, y
 
 if __name__ == "__main__":
+    print("patching")
     data = read_hdf5("data/temp/the_muffin_man.hdf5", "")
-    plt.imshow(np.swapaxes(data[0], -3, -1))
+    data = prepare_sequences(data, seq_len=5)
+
+    plt.imshow(data[0, 0, 0, :8, :8])
     plt.show()
-    print(data.shape)
+
     data = prepare_patches(data, (8, 8))
     print(data.shape)
-    print(data[0])
-    plt.imshow(np.swapaxes(data[40], -3, -1))
+
+    plt.imshow(data[0, 0, 0, :, :])
+    plt.show()
+
+    assert False
+
+    print(data.shape)
+    plt.imshow(np.swapaxes(data[0][0], -3, -1))
+    print(np.max(data[0][0]), np.mean(data[0][0]), np.min(data[0][0]))
+    plt.show()
+
+    data = prepare_patches(data, (8, 8))
+    print(data.shape)
+    plt.imshow(np.swapaxes(data[0][0][0][0], -3, -1))
+    print(np.max(data[0][0]), np.mean(data[0][0]), np.min(data[0][0]))
     plt.show()
 
     assert False

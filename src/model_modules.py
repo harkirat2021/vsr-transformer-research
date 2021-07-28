@@ -229,6 +229,30 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:x.size(0), :]
         return self.dropout(x)
 
+""" Transform a sequence of embeddings """
+class EmbeddingSeqTransform(nn.Module):
+    def __init__(self, t, emsize, k, n_hidden, n_layers):
+        super(EmbeddingSeqTransform, self).__init__()
+        self.emsize = emsize
+
+        self.conv_start = nn.Conv1d(t, n_hidden, k, padding="same")
+        self.layers = torch.nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Conv1d(n_hidden, n_hidden, k, padding="same"),
+                ) for i in range(n_layers)
+            ]
+        )
+        self.conv_final = nn.Conv1d(n_hidden, t, k, padding="same")
+    
+    """ (batch_dim, time_dim, embed_dim) -> (batch_dim, time_dim, embed_dim) """
+    def forward(self, x):
+        x = F.relu(self.conv_start(x))
+        for layer in self.layers:
+            x = F.relu(layer(x))
+        y = F.relu(self.conv_final(x))
+        return y
+
 """ Frame Encoder """
 class FrameEncoder(nn.Module):
     def __init__(self, c, h, w, emsize):

@@ -77,3 +77,67 @@ class VSRTE1(pl.LightningModule):
     def configure_optimizers(self):
       optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
       return optimizer
+
+
+""" VSR Seq Autoencoder """
+class VSRSA1(pl.LightningModule):
+    def __init__(self, t, c, h, w, emsize, k, n_hidden, n_layers):
+        super(VSRSA1, self).__init__()
+        self.model_type = 'Autoencoder'
+        self.name = name
+
+        self.frame_encoder = FrameSeqEncoder(c, h, w, emsize)
+        self.frame_decoder = FrameSeqDecoder(c, h, w, emsize)
+        self.embedding_seq_transform = EmbeddingSeqTransform(t, emsize, k, n_hidden, n_layers)
+        self.upsample = UpsampleSeqLayer(t, c, 3)
+
+    """ (batch_dim, time_dim, channel_dim, height_dim, width_dim) -> (batch_dim, time_dim, channel_dim, height_dim, width_dim) """
+    def forward(self, x):
+        # Swap batch and sequence dimension
+        x = torch.transpose(x, 0, 1)
+
+        # Encode
+        x = self.frame_encoder(x)
+
+        # Swap back batch and sequence dimension
+        x = torch.transpose(x, 0, 1)
+
+        # Embed transform
+        x = self.embedding_seq_transform(x)
+
+        # Swap batch and sequence dimension
+        x = torch.transpose(x, 0, 1)
+
+        # Decode
+        x = self.frame_decoder(x)
+
+        # Upsample
+        y = self.upsample(x)
+
+        # Swap back batch and sequence dimension
+        y = torch.transpose(y, 0, 1)
+
+        return y
+    
+    ### Pytorch Lightning functions ###
+
+    def mse_loss(self, outputs, targets):
+        return F.mse_loss(outputs, targets)
+
+    def training_step(self, train_batch, batch_idx):
+        x, y = train_batch
+        outputs = self.forward(x, self.src_mask)
+        # Compute loss between all, but first and last frame
+        loss = self.mse_loss(outputs[1:-1], y[1:-1])
+        self.log('train_loss', loss)
+        return loss
+
+    def validation_step(self, val_batch, batch_idx):
+        x, y = val_batch
+        outputs = self.forward(x, self.src_mask)
+        loss = self.mse_loss(outputs[1:-1], y[1:-1])
+        self.log('valid_loss', loss)
+
+    def configure_optimizers(self):
+      optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+      return optimizer

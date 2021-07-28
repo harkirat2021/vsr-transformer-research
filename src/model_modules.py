@@ -240,6 +240,7 @@ class EmbeddingSeqTransform(nn.Module):
             [
                 nn.Sequential(
                     nn.Conv1d(n_hidden, n_hidden, k, padding="same"),
+                    nn.Relu()
                 ) for i in range(n_layers)
             ]
         )
@@ -249,7 +250,7 @@ class EmbeddingSeqTransform(nn.Module):
     def forward(self, x):
         x = F.relu(self.conv_start(x))
         for layer in self.layers:
-            x = F.relu(layer(x))
+            x = layer(x)
         y = F.relu(self.conv_final(x))
         return y
 

@@ -11,7 +11,7 @@ from src.model_modules import *
 #### VSR Models ####
 
 class VSRTE1(pl.LightningModule):
-    def __init__(self, name, t, c, h, w, embed_dim, n_head, h_dim, n_layers, dropout=0.5):
+    def __init__(self, name, t, c, h, w, embed_dim, n_head, h_dim, n_layers, dropout=0.5, n_Convhidden, n_Convlayers, n_stride):
         super(VSRTE1, self).__init__()
         self.model_type = 'Transformer'
         self.name = name
@@ -22,8 +22,8 @@ class VSRTE1(pl.LightningModule):
         encoder_layers = TransformerEncoderLayer(embed_dim, n_head, h_dim, dropout)
         self.transformer_encoder = TransformerEncoder(encoder_layers, n_layers)
 
-        self.frame_encoder = FrameSeqEncoder(c, h, w, embed_dim)
-        self.frame_decoder = FrameSeqDecoder(c, h, w, embed_dim)
+        self.frame_encoder = FrameSeqEncoder(c, h, w, embed_dim, n_Convhidden, n_Convlayers, n_stride)
+        self.frame_decoder = FrameSeqDecoder(c, h, w, embed_dim, n_Convhidden, n_Convlayers, n_stride)
 
         self.upsample = UpsampleSeqLayer(t, c, 3)
 

@@ -1,0 +1,6 @@
+
+# VSRSA1
+VSRSA1_SAMPLE: {embed_dim: 4, n_esthidden: 4, n_estlayers: 4, n_Convhidden: 20, n_Convlayers: 2, n_stride: 2, dropout: 0.5}
+
+# VSRTE1
+VSRTE1_SAMPLE: {embed_dim: 4, n_heads: 4, n_transformerhidden: 4, n_transformerlayers: 2, n_Convhidden: 20, n_Convlayers: 2, n_stride: 2, dropout: 0.5}

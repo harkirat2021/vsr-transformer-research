@@ -8,27 +8,36 @@ from src.process_data import *
 from src.data import *
 
 parser = argparse.ArgumentParser(description="Run the deep Q trading agent")
-parser.add_argument('--task', type=str, help="'train' or 'evaluate'")
-parser.add_argument('--n_Convhidden', type=int, default=12, help='number of CNN hidden units')
-parser.add_argument('--n_Convlayers', type=int, default=0, help='number of CNN hidden layers')
-parser.add_argument('--n_stride', type=int, default=2, help='value of stride')
+parser.add_argument('--task', type=str, help="'train' or 'evaluate'", required=True)
+parser.add_argument('--model_path', type=str, help="path of model")
+parser.add_argument('--model_type', type=str, help="model architecture", required=True)
+parser.add_argument('--model_settings', type=str, help="params data to initialize model", required=True)
 
 args = parser.parse_args()
 
-# Get all config values
-with open("config.yml", "r") as ymlfile:
-    config = yaml.load(ymlfile, Loader=yaml.FullLoader)
-
 if __name__ == "__main__":
+
+    # Get all config values
+    with open("config.yml", "r") as ymlfile:
+        config = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+    # Get all config values
+    with open("model_settings.yml", "r") as ymlfile:
+        model_settings = yaml.load(ymlfile, Loader=yaml.FullLoader)
+        
     # Init data
     print("Loading data...")
     data_module = VideoDataModule(train_data_path="data/temp/the_muffin_man.hdf5", valid_data_path="data/temp/the_muffin_man.hdf5", seq_len=config["SEQ_LEN"], patch_shape=config["PATCH_SHAPE"])
 
     # Init model - TODO option to load from checkpoint
     print("Initializing model...")
-    model = VSRTE1(name="sample_model", c=3, h=8, w=8, embed_dim=8, n_head=4, h_dim=20, n_layers=2, dropout=0.5, n_Convhidden =args.n_Convhidden, n_Convlayers=args.n_Convlayers, n_stride=args.n_stride)
-    model.set_src_mask(config["SEQ_LEN"])
+    if str(args.model_type).lower() == "vsrsa1":
+        model = VSRSA1(name="sample_model", scale=config["SCALE"], t=5, c=3, h=8, w=8, **model_settings[args.model_settings.upper()])
+    elif str(args.model_type).lower() == "vsrte1":
+        model = VSRTE1(name="sample_model", scale=config["SCALE"], t=5, c=3, h=8, w=8, **model_settings[args.model_settings.upper()])
     
+    print(poop)
+
     if args.task == "train":
         print("Training...")
         model = train(model=model, data_module=data_module, max_epochs=2, gpus=0, save=False)

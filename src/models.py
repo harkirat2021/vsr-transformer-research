@@ -11,7 +11,7 @@ from src.model_modules import *
 #### VSR Models ####
 
 class VSRTE1(pl.LightningModule):
-    def __init__(self, name, t, c, h, w, embed_dim, n_head, h_dim, n_layers, dropout=0.5, n_Convhidden, n_Convlayers, n_stride):
+    def __init__(self, name, scale, t, c, h, w, embed_dim, n_heads, n_transformerhidden, n_transformerlayers, n_Convhidden, n_Convlayers, n_stride, dropout):
         super(VSRTE1, self).__init__()
         self.model_type = 'Transformer'
         self.name = name
@@ -19,13 +19,14 @@ class VSRTE1(pl.LightningModule):
         self.embed_dim = embed_dim
 
         self.pos_encoder = PositionalEncoding(embed_dim, dropout)
-        encoder_layers = TransformerEncoderLayer(embed_dim, n_head, h_dim, dropout)
-        self.transformer_encoder = TransformerEncoder(encoder_layers, n_layers)
+        encoder_layers = TransformerEncoderLayer(embed_dim, n_heads, n_transformerhidden, dropout)
+        self.transformer_encoder = TransformerEncoder(encoder_layers, n_transformerlayers)
 
         self.frame_encoder = FrameSeqEncoder(c, h, w, embed_dim, n_Convhidden, n_Convlayers, n_stride)
         self.frame_decoder = FrameSeqDecoder(c, h, w, embed_dim, n_Convhidden, n_Convlayers, n_stride)
 
-        self.upsample = UpsampleSeqLayer(t, c, 3)
+        # TODO add more power in this layer
+        self.upsample = UpsampleSeqLayer(seq_len=t, n_features=c, k=3, factor=scale)
 
         # Mask for now - sequence doesn't really make sense here does it?
         self.src_mask = self.generate_empty_mask(t)
@@ -81,15 +82,17 @@ class VSRTE1(pl.LightningModule):
 
 """ VSR Seq Autoencoder """
 class VSRSA1(pl.LightningModule):
-    def __init__(self, t, c, h, w, emsize, k, n_hidden, n_layers):
+    def __init__(self, name, scale, t, c, h, w, embed_dim, n_esthidden, n_estlayers, n_Convhidden, n_Convlayers, n_stride, dropout):
         super(VSRSA1, self).__init__()
-        self.model_type = 'Autoencoder'
+        self.model_type = 'SequenceAutoencoder'
         self.name = name
 
-        self.frame_encoder = FrameSeqEncoder(c, h, w, emsize)
-        self.frame_decoder = FrameSeqDecoder(c, h, w, emsize)
-        self.embedding_seq_transform = EmbeddingSeqTransform(t, emsize, k, n_hidden, n_layers)
-        self.upsample = UpsampleSeqLayer(t, c, 3)
+        self.frame_encoder = FrameSeqEncoder(c, h, w, embed_dim, n_Convhidden, n_Convlayers, n_stride)
+        self.frame_decoder = FrameSeqDecoder(c, h, w, embed_dim, n_Convhidden, n_Convlayers, n_stride)
+        self.embedding_seq_transform = EmbeddingSeqTransform(t, embed_dim, n_esthidden, n_estlayers)
+        
+        # TODO add more power in this layer
+        self.upsample = UpsampleSeqLayer(seq_len=t, n_features=c, k=3, factor=scale)
 
     """ (batch_dim, time_dim, channel_dim, height_dim, width_dim) -> (batch_dim, time_dim, channel_dim, height_dim, width_dim) """
     def forward(self, x):

@@ -2,6 +2,9 @@
 # Paths
 EXPERIMENT_SAVE_DIR: "experiments"
 
+# General
+SCALE: 4
+
 # Data
 SEQ_LEN: 5
 PATCH_SHAPE: [8, 8]

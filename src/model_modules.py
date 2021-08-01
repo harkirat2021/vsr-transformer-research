@@ -77,9 +77,20 @@ class UpsampleLayer(nn.Module):
 
         return x
 
+class UpsampleSeqLayer(nn.Module):
+    def __init__(self, seq_len, n_features, k=3, factor=2, act_class=nn.ReLU, act_params={'inplace': True}):
+        super(UpsampleSeqLayer, self).__init__()
 
+        self.seq_len = seq_len
+        self.upsample = UpsampleLayer(n_features, k, factor=2, act_class=nn.ReLU, act_params={'inplace': True})
 
-#### Modules ####
+    # Expects (seq, batch, channels, height, width)
+    def forward(self, x_seq):
+        y_seq = []
+        for x in x_seq:
+            y_seq.append(self.upsample(x))
+
+        return torch.stack(y_seq, dim=0)
 
 class BicubicResize(nn.Module):
     KERNEL_WIDTH = 4.0
@@ -231,7 +242,7 @@ class PositionalEncoding(nn.Module):
 
 """ Transform a sequence of embeddings """
 class EmbeddingSeqTransform(nn.Module):
-    def __init__(self, t, emsize, k, n_hidden, n_layers):
+    def __init__(self, t, emsize, n_hidden, n_layers, k=3):
         super(EmbeddingSeqTransform, self).__init__()
         self.emsize = emsize
 
@@ -240,7 +251,7 @@ class EmbeddingSeqTransform(nn.Module):
             [
                 nn.Sequential(
                     nn.Conv1d(n_hidden, n_hidden, k, padding="same"),
-                    nn.Relu()
+                    nn.Conv1d(n_hidden, n_hidden, k, padding="same")
                 ) for i in range(n_layers)
             ]
         )
@@ -250,13 +261,11 @@ class EmbeddingSeqTransform(nn.Module):
     def forward(self, x):
         x = F.relu(self.conv_start(x))
         for layer in self.layers:
-            x = layer(x)
+            x = F.relu(layer(x))
         y = F.relu(self.conv_final(x))
         return y
 
 """ Frame Encoder """
-
-
 class FrameEncoder(nn.Module):
     def __init__(self, c, h, w, emsize, n_hidden, n_layers, s):
         super(FrameEncoder, self).__init__()
@@ -355,10 +364,10 @@ class FrameDecoder(nn.Module):
 
 """ Frame Sequence Encoder """
 class FrameSeqEncoder(nn.Module):
-    def __init__(self, c, h, w, emsize):
+    def __init__(self, c, h, w, emsize, n_hidden, n_layers, s):
         super(FrameSeqEncoder, self).__init__()
         self.emsize = emsize
-        self.frame_encoder = FrameEncoder(c, h, w, emsize)
+        self.frame_encoder = FrameEncoder(c, h, w, emsize, n_hidden, n_layers, s)
     
     def forward(self, x_seq):
         y_seq = []
@@ -369,9 +378,9 @@ class FrameSeqEncoder(nn.Module):
 
 """ Frame Sequence Decoder """
 class FrameSeqDecoder(nn.Module):
-    def __init__(self, c, h, w, emsize):
+    def __init__(self, c, h, w, emsize, n_hidden, n_layers, s):
         super(FrameSeqDecoder, self).__init__()
-        self.frame_decoder = FrameDecoder(c, h, w, emsize)
+        self.frame_decoder = FrameDecoder(c, h, w, emsize, n_hidden, n_layers, s)
     
     def forward(self, x_seq):
         y_seq = []

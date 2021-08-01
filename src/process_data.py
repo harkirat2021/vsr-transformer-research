@@ -57,11 +57,8 @@ def prepare_patches(data, patch_shape):
     # TODO - shape safety check
 
     # Split patches
-    print("o", data[0,0, 0, :8, :8])
     data = np.array(np.split(data, data.shape[3] / patch_shape[0], axis=3))
-    print("h", data[0, 0, 0, 0, :, :8])
     data = np.array(np.split(data, data.shape[5] / patch_shape[1], axis=5))
-    print("v", data[0, 0, 0, 0, 0, :, :])
 
     # Merge patche dimensions
     data = data.reshape((data.shape[0] * data.shape[1] * data.shape[2], *data.shape[3:]))

@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import cv2
 import pytorch_lightning as pl
 from torch.utils.data import TensorDataset, Dataset, DataLoader
 
@@ -15,16 +16,23 @@ class VideoDataModule(pl.LightningDataModule):
     def prepare_dataset(self, data_path, seq_len, patch_shape):
         data = read_hdf5(filepath=data_path, group_name="")
 
-        # Split into sequences and convert to tensor
-        data = prepare_sequences(data, seq_len=seq_len)
-        data = prepare_patches(data, patch_shape=patch_shape)
-        data = torch.tensor(data).float()
-
-        data = data[:1000]
+        # Downsample - TODO wont need for zeus
+        mp = torch.nn.MaxPool3d((1,2,2), stride=(1,2,2))
 
         # Set inputs and outputs
-        x = data.clone()
-        y = data.clone()
+        x = data.copy()
+        y = data.copy()
+
+        # Split x into sequences and convert to tensor
+        x = prepare_sequences(x, seq_len=seq_len)
+        x = prepare_patches(x, patch_shape=patch_shape)
+        x = torch.tensor(x).float()
+        x = mp(x)
+
+        # Split y into sequences and convert to tensor
+        y = prepare_sequences(y, seq_len=seq_len)
+        y = prepare_patches(y, patch_shape=patch_shape)
+        y = torch.tensor(y).float()
 
         # Set dataset
         dataset = TensorDataset(x, y)

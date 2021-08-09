@@ -51,11 +51,15 @@ def prepare_sequences(data, seq_len):
     # Split into sequences
     return np.array(np.split(data, data.shape[0] / seq_len))
 
-# TODO - DOESNT WORK AT ALL
+
 """ Divide video frames into patches """
 def prepare_patches(data, patch_shape):
-    # TODO - shape safety check
-
+    # Safety check
+    if len(data.shape) != 5:
+        raise ValueError("Invalid data shape. Required shape: (t, s, c, h, w)")
+    if data.shape[3] % patch_shape[0] != 0 or data.shape[4] % patch_shape[0] != 0:
+        raise ValueError("Patch shape does evenly divide data")
+    
     # Split patches
     data = np.array(np.split(data, data.shape[3] / patch_shape[0], axis=3))
     data = np.array(np.split(data, data.shape[5] / patch_shape[1], axis=5))
@@ -87,33 +91,19 @@ if __name__ == "__main__":
     data = read_hdf5("data/temp/the_muffin_man.hdf5", "")
     data = prepare_sequences(data, seq_len=5)
 
-    plt.imshow(data[0, 0, 0, :8, :8])
+    i, j = 0, 0
+
+    plt.imshow(np.swapaxes(data[i, j, :, :, :], -3, -1))
     plt.show()
 
-    data = prepare_patches(data, (8, 8))
+    #plt.imshow(np.swapaxes(data[i, j, :, :8, :8], -3, -1))
+    #plt.show()
+
+    #print(np.swapaxes(data[i, j, :, :8, :8], -3, -1))
+
+    print(data.shape)
+    data = prepare_patches(data, (36, 64))
     print(data.shape)
 
-    plt.imshow(data[0, 0, 0, :, :])
+    plt.imshow(np.swapaxes(data[21+ i, j, :, :, :], -3, -1))
     plt.show()
-
-    assert False
-
-    print(data.shape)
-    plt.imshow(np.swapaxes(data[0][0], -3, -1))
-    print(np.max(data[0][0]), np.mean(data[0][0]), np.min(data[0][0]))
-    plt.show()
-
-    data = prepare_patches(data, (8, 8))
-    print(data.shape)
-    plt.imshow(np.swapaxes(data[0][0][0][0], -3, -1))
-    print(np.max(data[0][0]), np.mean(data[0][0]), np.min(data[0][0]))
-    plt.show()
-
-    assert False
-
-    #v = read_hdf5("data/temp/the_muffin_man.hdf5", "temp")
-    #print(v.shape)
-    #assert False
-    v = get_video_data("data/temp/the_muffin_man.mp4", 201, (640, 360))
-    print(v.shape)
-    write_hdf5(v, "data/temp/the_muffin_man.hdf5", "temp")

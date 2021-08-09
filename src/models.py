@@ -129,7 +129,7 @@ class VSRSA1(pl.LightningModule):
 
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
-        outputs = self.forward(x, self.src_mask)
+        outputs = self.forward(x)
         # Compute loss between all, but first and last frame
         loss = self.mse_loss(outputs[1:-1], y[1:-1])
         self.log('train_loss', loss)
@@ -137,7 +137,7 @@ class VSRSA1(pl.LightningModule):
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
-        outputs = self.forward(x, self.src_mask)
+        outputs = self.forward(x)
         loss = self.mse_loss(outputs[1:-1], y[1:-1])
         self.log('valid_loss', loss)
 

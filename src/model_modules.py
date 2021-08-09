@@ -283,18 +283,12 @@ class FrameEncoder(nn.Module):
                     s ** (n_layers + 2)) else nn.Linear(8, emsize)
 
     def forward(self, x):
-        print(x.shape)
         x = F.relu(self.conv1(x))
-        print(x.shape)
         for layer in self.layers:
             x = F.relu(layer(x))
-            print(x.shape)
         x = F.relu(self.conv2(x))
-        print(x.shape)
         x = torch.flatten(x, 1)
-        print(x.shape)
         x = self.fc1(x)
-        print(x.shape)
         return x
 
 """ Frame Decoder """
@@ -348,20 +342,16 @@ class FrameDecoder(nn.Module):
         self.up_sample = nn.Upsample(scale_factor=s)
 
     def forward(self, x):
-        print(x.shape)
         x = self.fc1(x).reshape(x.shape[0], 8, self.h // (self.s ** (self.n_layers + 2)),
                                 self.w // (self.s ** (self.n_layers + 2))) if self.h > (
                     self.s ** (self.n_layers + 2)) else self.fc1(x).reshape(x.shape[0], 8, 1, 1)
-        print(x.shape)
-        x = F.relu(self.conv1(self.up_sample(x)))
-        print(x.shape)
+        # NOTE: Only upample twice here
+        x = self.upsample(F.relu(self.conv1(self.up_sample(x))))
         for layer in self.layers:
             if x.shape[2] >= self.h // self.s and x.shape[3] >= self.w // self.s:
                 break
             x = F.relu(layer(self.up_sample(x)))
-            print(x.shape)
         x = torch.sigmoid(self.conv2(self.up_sample(x)))
-        print(x.shape)
         return x
 
 """ Frame Sequence Encoder """

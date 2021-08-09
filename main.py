@@ -9,10 +9,11 @@ from src.data import *
 
 parser = argparse.ArgumentParser(description="Run the deep Q trading agent")
 parser.add_argument('--task', type=str, help="'train' or 'evaluate'", required=True)
-parser.add_argument('--model_path', type=str, help="Path of model to load")
-parser.add_argument('--model_save', type=str, help="Flag to save the model after training", default=True)
-parser.add_argument('--model_type', type=str, help="Model architecture", required=True)
-parser.add_argument('--model_settings', type=str, help="Params data to initialize model", required=True)
+parser.add_argument('--model_path', type=str, help="path of model")
+parser.add_argument('--model_type', type=str, help="model architecture", required=True)
+parser.add_argument('--model_settings', type=str, help="params data to initialize model", required=True)
+parser.add_argument('--load_checkpoint', type=str, default=False, help="load weights, biases and hyperparameters from checkpoint")
+
 
 args = parser.parse_args()
 
@@ -35,9 +36,16 @@ if __name__ == "__main__":
     # Init model - TODO option to load from checkpoint
     print("Initializing model...")
     if str(args.model_type).lower() == "vsrsa1":
-        model = VSRSA1(name="sample_model", scale=config["SCALE"], t=5, c=3, h=8, w=8, **model_settings[args.model_settings.upper()])
+        if args.load_checkpoint == False:
+            model = VSRSA1(name="sample_model", scale=config["SCALE"], t=5, c=3, h=8, w=8, **model_settings[args.model_settings.upper()])
+        else:
+            model = VSRSA1.load_from_checkpoint(checkpoint_path="experiment/VSRSA1/version_x/")
     elif str(args.model_type).lower() == "vsrte1":
-        model = VSRTE1(name="sample_model", scale=config["SCALE"], t=5, c=3, h=8, w=8, **model_settings[args.model_settings.upper()])
+        if args.load_checkpoint == False:
+            model = VSRTE1(name="sample_model", scale=config["SCALE"], t=5, c=3, h=8, w=8, **model_settings[args.model_settings.upper()])
+        else:
+            model = VSRTE1.load_from_checkpoint(checkpoint_path="experiment/VSRTE1/version_x/")
+
     
     # Run task
     if args.task == "train":

@@ -349,8 +349,9 @@ class FrameDecoder(nn.Module):
         x = self.upsample(F.relu(self.conv1(self.up_sample(x))))
         for layer in self.layers:
             if x.shape[2] >= self.h // self.s and x.shape[3] >= self.w // self.s:
-                break
-            x = F.relu(layer(self.up_sample(x)))
+                x = F.relu(layer(x))
+            else:
+                x = F.relu(layer(self.up_sample(x)))
         x = torch.sigmoid(self.conv2(self.up_sample(x)))
         return x
 

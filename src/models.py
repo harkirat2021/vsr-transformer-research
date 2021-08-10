@@ -63,7 +63,7 @@ class VSRTE1(pl.LightningModule):
 
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
-        outputs = self.forward(x, self.src_mask)
+        outputs = self.forward(x)
         # Compute loss between all, but first and last frame
         loss = self.mse_loss(outputs[1:-1], y[1:-1])
         self.log('train_loss', loss)
@@ -71,7 +71,7 @@ class VSRTE1(pl.LightningModule):
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
-        outputs = self.forward(x, self.src_mask)
+        outputs = self.forward(x)
         loss = self.mse_loss(outputs[1:-1], y[1:-1])
         self.log('valid_loss', loss)
 
@@ -106,6 +106,7 @@ class VSRSA1(pl.LightningModule):
         x = torch.transpose(x, 0, 1)
 
         # Embed transform
+        print(x.shape)
         x = self.embedding_seq_transform(x)
 
         # Swap batch and sequence dimension

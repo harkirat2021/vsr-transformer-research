@@ -5,3 +5,4 @@ h5py
 torch
 pytorch_msssim
 tensorboard
+pytorch-lightning

@@ -323,10 +323,12 @@ class FrameDecoder(nn.Module):
         self.w = w
         self.s = s
         self.n_layers = n_layers
-        self.fc1 = nn.Linear(emsize, h // 4 * w // 4 * 8)
-        self.fc1 = nn.Linear(emsize, (h // (s ** (n_layers + 2))) * (w // (s ** (n_layers + 2))) * 8) if h > (
-                    s ** (n_layers + 2)) else nn.Linear(emsize, 8)
-        self.conv1 = nn.Conv2d(8, n_hidden, 3, padding=1)
+        self.n_hidden = n_hidden
+
+        # NOTE: should be divisible
+        self.f1_dim = n_hidden * (w * h) // (4 * 4)
+        self.fc1 = nn.Linear(emsize, self.f1_dim)
+
         self.layers = torch.nn.ModuleList(
             [
                 nn.Sequential(
@@ -335,26 +337,20 @@ class FrameDecoder(nn.Module):
             ]
         )
         self.conv2 = nn.Conv2d(n_hidden, c, 3, padding=1)
-
-        self.convtrans2 = nn.ConvTranspose2d(in_channels=8, out_channels=12, kernel_size=3, stride=2, padding=1)
-        self.convtrans1 = nn.ConvTranspose2d(in_channels=12, out_channels=c, kernel_size=3, stride=2, padding=1)
-
         self.up_sample = nn.Upsample(scale_factor=s)
 
     def forward(self, x):
-        x = self.fc1(x).reshape(x.shape[0], 8, self.h // (self.s ** (self.n_layers + 2)),
-                                self.w // (self.s ** (self.n_layers + 2))) if self.h > (
-                    self.s ** (self.n_layers + 2)) else self.fc1(x).reshape(x.shape[0], 8, 1, 1)
-        # NOTE: Only upample twice here
-        x = self.upsample(F.relu(self.conv1(self.up_sample(x))))
-        for layer in self.layers:
-            if x.shape[2] >= self.h // self.s and x.shape[3] >= self.w // self.s:
-                x = F.relu(layer(x))
-            else:
+        x = self.fc1(x).reshape(x.shape[0], self.n_hidden, self.h // 4, self.w // 4)
+   
+        for i, layer in enumerate(self.layers):
+            if i < 1:
                 x = F.relu(layer(self.up_sample(x)))
+            else:
+                x = F.relu(layer(x))
+
         x = torch.sigmoid(self.conv2(self.up_sample(x)))
         return x
-
+        
 """ Frame Sequence Encoder """
 class FrameSeqEncoder(nn.Module):
     def __init__(self, c, h, w, emsize, n_hidden, n_layers, s):

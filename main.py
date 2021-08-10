@@ -7,13 +7,13 @@ from src.evaluate import *
 from src.process_data import *
 from src.data import *
 
-parser = argparse.ArgumentParser(description="Run the deep Q trading agent")
+parser = argparse.ArgumentParser(description="Run the VSR pipeline")
 parser.add_argument('--task', type=str, help="'train' or 'evaluate'", required=True)
 parser.add_argument('--model_path', type=str, help="path of model")
 parser.add_argument('--model_type', type=str, help="model architecture", required=True)
 parser.add_argument('--model_settings', type=str, help="params data to initialize model", required=True)
 parser.add_argument('--load_checkpoint', type=str, default=False, help="load weights, biases and hyperparameters from checkpoint")
-
+parser.add_argument('--model_save', type=str, help="flag for whether or not to save the model")
 
 args = parser.parse_args()
 

@@ -87,6 +87,11 @@ def batchify(video, seq_len, batch_size):
     return x, y
 
 if __name__ == "__main__":
+
+    #data = get_video_data("data/temp/the_muffin_man.hdf5", 10, (320, 640))
+    write_hdf5(np.zeros((10, 3, 64, 64)), "data/temp/empty_data.hdf5", "")
+    print(poo)
+
     print("patching")
     data = read_hdf5("data/temp/the_muffin_man.hdf5", "")
     data = prepare_sequences(data, seq_len=5)

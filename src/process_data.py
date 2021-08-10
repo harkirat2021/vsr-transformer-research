@@ -46,7 +46,7 @@ def get_video_data(path, max_frames, img_size):
 """ Divide data into sequences """
 def prepare_sequences(data, seq_len):
     # Truncate sequence if not divisible by seq_len
-    data = data[:data.shape[0] // seq_len]
+    data = data[:data.shape[0] * (data.shape[0] // seq_len)]
 
     # Split into sequences
     return np.array(np.split(data, data.shape[0] / seq_len))

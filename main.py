@@ -31,18 +31,20 @@ if __name__ == "__main__":
         
     # Init data
     print("Loading data...")
-    data_module = VideoDataModule(train_data_path="data/temp/the_muffin_man.hdf5", valid_data_path="data/temp/the_muffin_man.hdf5", seq_len=config["SEQ_LEN"], patch_shape=config["PATCH_SHAPE"])
-
+    data_module = VideoDataModule(train_data_path="data/temp/empty_data.hdf5", valid_data_path="data/temp/empty_data.hdf5", seq_len=config["SEQ_LEN"], patch_shape=config["PATCH_SHAPE"])
+    #print(data_module.train_dataset[0][0].shape, data_module.train_dataset[0][1].shape)
+    #print(data_module.valid_dataset[0][0].shape, data_module.valid_dataset[0][1].shape)
+    
     # Init model - TODO option to load from checkpoint
     print("Initializing model...")
     if str(args.model_type).lower() == "vsrsa1":
         if args.load_checkpoint == False:
-            model = VSRSA1(name="sample_model", scale=config["SCALE"], t=5, c=3, h=8, w=8, **model_settings[args.model_settings.upper()])
+            model = VSRSA1(name=args.model_settings.lower(), scale=config["SCALE"], t=5, c=3, h=4, w=4, **model_settings[args.model_settings.upper()])
         else:
             model = VSRSA1.load_from_checkpoint(checkpoint_path="experiment/VSRSA1/version_x/")
     elif str(args.model_type).lower() == "vsrte1":
         if args.load_checkpoint == False:
-            model = VSRTE1(name="sample_model", scale=config["SCALE"], t=5, c=3, h=8, w=8, **model_settings[args.model_settings.upper()])
+            model = VSRTE1(name=args.model_settings.lower(), scale=config["SCALE"], t=5, c=3, h=4, w=4, **model_settings[args.model_settings.upper()])
         else:
             model = VSRTE1.load_from_checkpoint(checkpoint_path="experiment/VSRTE1/version_x/")
 

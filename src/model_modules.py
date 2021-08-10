@@ -65,7 +65,7 @@ class UpsampleLayer(nn.Module):
         self.add_module('upsample_%d'%self.n_factors,
             nn.Sequential(
                 nn.Conv2d(self.n_features, self.n_features*(n**2),
-                          self.k, padding="same"),
+                          self.k, padding=self.pad),
                 nn.PixelShuffle(n),
                 self.act_class(**self.act_params),
             )
@@ -246,16 +246,16 @@ class EmbeddingSeqTransform(nn.Module):
         super(EmbeddingSeqTransform, self).__init__()
         self.emsize = emsize
 
-        self.conv_start = nn.Conv1d(t, n_hidden, k, padding="same")
+        self.conv_start = nn.Conv1d(t, n_hidden, k, padding=k//2)
         self.layers = torch.nn.ModuleList(
             [
                 nn.Sequential(
-                    nn.Conv1d(n_hidden, n_hidden, k, padding="same"),
-                    nn.Conv1d(n_hidden, n_hidden, k, padding="same")
+                    nn.Conv1d(n_hidden, n_hidden, k, padding=k//2),
+                    nn.Conv1d(n_hidden, n_hidden, k, padding=k//2)
                 ) for i in range(n_layers)
             ]
         )
-        self.conv_final = nn.Conv1d(n_hidden, t, k, padding="same")
+        self.conv_final = nn.Conv1d(n_hidden, t, k, padding=k//2)
     
     """ (batch_dim, time_dim, embed_dim) -> (batch_dim, time_dim, embed_dim) """
     def forward(self, x):

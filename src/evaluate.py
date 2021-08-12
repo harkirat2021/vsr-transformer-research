@@ -9,11 +9,14 @@ import torch.nn.functional as F
 from src.models import *
 from src.metrics import *
 
-def evaluate(model, data_module):
+# Get all config values
+with open("config.yml", "r") as ymlfile:
+    config = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+def evaluate(model, eval_dataloader):
     model.eval()
 
-    eval_dataloader = data_module.val_dataloader()
-    metrics_sr = MetricsSR(scale=2)
+    metrics_sr = MetricsSR(scale=config["SCALE"])
 
     psnr = 0
     ssim = 0
@@ -21,9 +24,9 @@ def evaluate(model, data_module):
 
     with torch.no_grad():
         for x, y in eval_dataloader:
-            out = model.forward(x, model.src_mask)
-            psnr += metrics_sr.PSNR(x, y)
-            ssim += metrics_sr.SSIMCustom(x, y)
+            out = model(x)
+            psnr += metrics_sr.PSNR(out, y)
+            ssim += metrics_sr.SSIMCustom(out, y)
             num_batches += 1
 
     return psnr / num_batches, ssim / num_batches

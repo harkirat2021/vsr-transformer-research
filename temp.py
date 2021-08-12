@@ -8,6 +8,12 @@ from src.train import *
 from src.evaluate import *
 from src.process_data import *
 from src.data import *
+from src.metrics import *
+
+metrics_sr = MetricsSR(scale=config["SCALE"])
+ssim = metrics_sr.SSIMCustom(torch.zeros((4, 5, 3, 10, 10)), torch.zeros((4, 5, 3, 10, 10)))
+print(ssim)
+print(poop)
 
 # Get all config values
 with open("config.yml", "r") as ymlfile:

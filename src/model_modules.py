@@ -82,7 +82,7 @@ class UpsampleSeqLayer(nn.Module):
         super(UpsampleSeqLayer, self).__init__()
 
         self.seq_len = seq_len
-        self.upsample = UpsampleLayer(n_features, k, factor=2, act_class=nn.ReLU, act_params={'inplace': True})
+        self.upsample = UpsampleLayer(n_features, k, factor=factor, act_class=act_class, act_params=act_params)
 
     # Expects (seq, batch, channels, height, width)
     def forward(self, x_seq):

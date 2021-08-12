@@ -106,7 +106,6 @@ class VSRSA1(pl.LightningModule):
         x = torch.transpose(x, 0, 1)
 
         # Embed transform
-        print(x.shape)
         x = self.embedding_seq_transform(x)
 
         # Swap batch and sequence dimension

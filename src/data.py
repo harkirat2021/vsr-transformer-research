@@ -7,8 +7,11 @@ from torch.utils.data import TensorDataset, Dataset, DataLoader
 from src.process_data import *
 
 class VideoDataModule(pl.LightningDataModule):
-    def __init__(self, train_data_path, valid_data_path, seq_len, patch_shape):
+    def __init__(self, dataset_name, train_data_path, valid_data_path, scale, seq_len, patch_shape):
         super(VideoDataModule, self).__init__()
+
+        self.dataset_name = dataset_name
+        self.scale = scale
 
         self.train_dataset = self.prepare_dataset(train_data_path, seq_len, patch_shape)
         self.valid_dataset = self.prepare_dataset(valid_data_path, seq_len, patch_shape)
@@ -16,8 +19,8 @@ class VideoDataModule(pl.LightningDataModule):
     def prepare_dataset(self, data_path, seq_len, patch_shape):
         data = read_hdf5(filepath=data_path, group_name="")
 
-        # Downsample - TODO wont need for zeus
-        mp = torch.nn.MaxPool3d((1,2,2), stride=(1,2,2))
+        # Downsample
+        mp = torch.nn.MaxPool3d((1,self.scale,self.scale), stride=(1,self.scale,self.scale))
 
         # Set inputs and outputs
         x = data.copy()

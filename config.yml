@@ -7,7 +7,16 @@ SCALE: 4
 
 # Data
 SEQ_LEN: 5
-PATCH_SHAPE: [8, 8]
+NUM_CHANNELS: 3
+HR_PATCH_SHAPE: [32, 32]
+
+DATA: {
+  SAMPLE_NATGEO: {
+    TRAIN: "data/temp/leopard_climb.hdf5",
+    VALID: "data/temp/leopard_climb.hdf5",
+    TEST: "data/temp/leopard_climb.hdf5"
+  }
+}
 
 # Training
 CHECKPOINT_VALID_EVERY_N_EPOCH: 2

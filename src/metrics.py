@@ -5,15 +5,19 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from pytorch_msssim import SSIM
+import yaml
 
 from src.model_modules import *
+
+with open("config.yml", "r") as ymlfile:
+    config = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 class MetricsSR():
     def __init__(self, scale, max_val=1.0, cuda=False):
         self.border = scale
         self.max_val = max_val
         self.color = RGB2YCBCR()
-        self.ssim_module = SSIM(data_range=1.0, size_average=True, channel=1,
+        self.ssim_module = SSIM(data_range=1.0, win_size=config["HR_PATCH_SHAPE"][0]+1, size_average=True, channel=1,
                                 nonnegative_ssim=True)
 
         if cuda:

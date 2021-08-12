@@ -33,7 +33,12 @@ def get_video_data(path, max_frames, img_size):
     while ret and f < max_frames:
         f += 1
         ret, img = cap.read() 
-        img = cv2.resize(img, img_size)
+
+        try:
+            img = cv2.resize(img, img_size)
+        except Exception as e:
+            ret = False
+
         if ret:
             frames.append(img)
 
@@ -46,7 +51,7 @@ def get_video_data(path, max_frames, img_size):
 """ Divide data into sequences """
 def prepare_sequences(data, seq_len):
     # Truncate sequence if not divisible by seq_len
-    data = data[:data.shape[0] * (data.shape[0] // seq_len)]
+    data = data[:seq_len * (data.shape[0] // seq_len)]
 
     # Split into sequences
     return np.array(np.split(data, data.shape[0] / seq_len))
@@ -88,27 +93,28 @@ def batchify(video, seq_len, batch_size):
 
 if __name__ == "__main__":
 
-    #data = get_video_data("data/temp/the_muffin_man.hdf5", 10, (320, 640))
-    write_hdf5(np.zeros((10, 3, 64, 64)), "data/temp/empty_data.hdf5", "")
-    print(poo)
+    #data = get_video_data("data/temp/leopard_climb.mp4", 1000, (640, 320))
+    #data = np.flip(data, 1)
+    #print(data.shape)
 
     print("patching")
-    data = read_hdf5("data/temp/the_muffin_man.hdf5", "")
+    data = read_hdf5("data/temp/leopard_climb.hdf5", "")
     data = prepare_sequences(data, seq_len=5)
 
-    i, j = 0, 0
+    print(data.shape)
 
-    plt.imshow(np.swapaxes(data[i, j, :, :, :], -3, -1))
+    plt.imshow(np.swapaxes(np.swapaxes(data[1, 0, :, :, :], -3, -1), -2, -3))
     plt.show()
 
-    #plt.imshow(np.swapaxes(data[i, j, :, :8, :8], -3, -1))
-    #plt.show()
-
-    #print(np.swapaxes(data[i, j, :, :8, :8], -3, -1))
+    data = prepare_patches(data, (320, 320))
 
     print(data.shape)
-    data = prepare_patches(data, (36, 64))
-    print(data.shape)
 
-    plt.imshow(np.swapaxes(data[21+ i, j, :, :, :], -3, -1))
+    plt.imshow(np.swapaxes(np.swapaxes(data[2, 0, :, :, :], -3, -1), -2, -3))
+    plt.show()
+
+    plt.imshow(np.swapaxes(np.swapaxes(data[2, 1, :, :, :], -3, -1), -2, -3))
+    plt.show()
+
+    plt.imshow(np.swapaxes(np.swapaxes(data[2, 2, :, :], -3, -1), -2, -3))
     plt.show()

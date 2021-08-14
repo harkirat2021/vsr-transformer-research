@@ -41,7 +41,8 @@ if __name__ == "__main__":
 
     # Init data
     print("Loading data...")
-    data_module = VideoDataModule(dataset_name=args.data.lower(),train_data_path=config["DATA"][args.data.upper()]["TRAIN"], valid_data_path=config["DATA"][args.data.upper()]["VALID"], scale=config["SCALE"], seq_len=config["SEQ_LEN"], patch_shape=config["HR_PATCH_SHAPE"])
+    data_module = VideoDataModule(dataset_name=args.data.lower(),train_data_path=config["DATA"][args.data.upper()]["TRAIN"], valid_data_path=config["DATA"][args.data.upper()]["VALID"], scale=config["SCALE"], seq_len=config["SEQ_LEN"], patch_shape=config["HR_PATCH_SHAPE"], color_channel=False,
+                 prepared_seq=True, prepared_patch=False)
     print("LR data shape: ", data_module.train_dataset[:][0].shape)
     print("HR data shape: ", data_module.train_dataset[:][1].shape)
 

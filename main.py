@@ -45,31 +45,42 @@ if __name__ == "__main__":
     print("LR data shape: ", data_module.train_dataset[:][0].shape)
     print("HR data shape: ", data_module.train_dataset[:][1].shape)
 
-    # Init model - TODO option to load from checkpoint
+    #### Init model ####
+    
+    # VSRSA1
     if str(args.model_type).lower() == "vsrsa1":
         print("Initializing model...")
         model = VSRSA1(name=args.model_settings.lower(),
                         scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
                         h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
                         **model_settings[args.model_settings.upper()])
+        # Load model from checkpoint
+        if args.check_load_path:
+            print("Loading model from checkpoint...")
+            model = model.load_from_checkpoint(checkpoint_path=args.check_load_path,
+                            name=args.model_settings.lower(),
+                            scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
+                            h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
+                            **model_settings[args.model_settings.upper()])
     
+    # VSRTE1
     elif str(args.model_type).lower() == "vsrte1":
         print("Initializing model...")
         model = VSRTE1(name=args.model_settings.lower(),
                         scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
                         h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
                         **model_settings[args.model_settings.upper()])
+        # Load model from checkpoint
+        if args.check_load_path:
+            print("Loading model from checkpoint...")
+            model = model.load_from_checkpoint(checkpoint_path=args.check_load_path,
+                            name=args.model_settings.lower(),
+                            scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
+                            h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
+                            **model_settings[args.model_settings.upper()])
 
-    # Load model from checkpoint
-    if args.check_load_path:
-        print("Loading model from checkpoint...")
-        model = model.load_from_checkpoint(checkpoint_path=args.check_load_path,
-                        name=args.model_settings.lower(),
-                        scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
-                        h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
-                        **model_settings[args.model_settings.upper()])
+    #### Run task ####
 
-    # Run task
     if args.task == "train":
         print("Training...")
         model = train(model=model, data_module=data_module, experiment_dir=experiment_dir, max_epochs=args.num_epochs, gpus=0, save=bool(args.model_save))
@@ -92,7 +103,6 @@ if __name__ == "__main__":
         # Save results to file
         with open(os.path.join(experiment_dir, "results.txt"), "w+") as f:
             f.write(results_str)
-
 
     elif args.task == "sample":
         print("Sampling...")

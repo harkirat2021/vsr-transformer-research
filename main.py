@@ -19,13 +19,14 @@ parser.add_argument('--model_type', type=str, help="model architecture", require
 parser.add_argument('--model_settings', type=str, help="params data to initialize model", required=True)
 parser.add_argument('--data', type=str, help="dataset to use for train, valid, and test", required=True)
 parser.add_argument('--num_epochs', type=int, help="number of epochs to train for")
-parser.add_argument('--check_load_path', default="", type=str, help="path of model to load")
+parser.add_argument('--model_load', type=str, help="flag for whether or not to load the model")
 parser.add_argument('--model_save', type=str, help="flag for whether or not to save the model")
 
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    # Set model save
+    # Set model save and load as boolean
+    args.model_load = args.model_load == "True"
     args.model_save = args.model_save == "True"
 
     # Get all config values
@@ -38,6 +39,22 @@ if __name__ == "__main__":
 
     # Set experiment directory
     experiment_dir = os.path.join(config["EXPERIMENT_SAVE_DIR"], args.data.lower(), args.model_settings.lower(), "scale_{}".format(config["SCALE"]), "patch_{}x{}x{}".format(config["NUM_CHANNELS"], *config["HR_PATCH_SHAPE"]))
+    print(experiment_dir)
+
+    # Set checkpoint load path
+    # TODO - may be issue if multiple checkpoints, but not big concern for now
+    check_load_path = ""
+    if args.model_load:
+        checkpoint_paths = []
+        for subdir, dirs, files in os.walk(experiment_dir):
+            for f in files:
+                if "epoch=" in f:
+                    path = os.path.join(subdir, f)
+                    checkpoint_paths.append((path, path[path.index("version_") + len("version_")]))
+        
+        # Choose checkpoint from the latest version to load if paths list is not empty
+        if checkpoint_paths:
+            check_load_path = max(checkpoint_paths, key=lambda x: x[1])[0]
 
     # Init data
     print("Loading data...")
@@ -56,9 +73,9 @@ if __name__ == "__main__":
                         h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
                         **model_settings[args.model_settings.upper()])
         # Load model from checkpoint
-        if args.check_load_path:
+        if check_load_path:
             print("Loading model from checkpoint...")
-            model = model.load_from_checkpoint(checkpoint_path=args.check_load_path,
+            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
                             name=args.model_settings.lower(),
                             scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
                             h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
@@ -72,9 +89,9 @@ if __name__ == "__main__":
                         h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
                         **model_settings[args.model_settings.upper()])
         # Load model from checkpoint
-        if args.check_load_path:
+        if check_load_path:
             print("Loading model from checkpoint...")
-            model = model.load_from_checkpoint(checkpoint_path=args.check_load_path,
+            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
                             name=args.model_settings.lower(),
                             scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
                             h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],

@@ -11,6 +11,14 @@ TEST_DATA: {
   HR_PATCH_SHAPE: [32, 32]
 }
 
+MYAMAR_DATA: {
+  PATH: "/home/xijun/sony/train_u4_no_mc_filtered.hdf5",
+  SCALE: 4,
+  SEQ_LEN: 5,
+  NUM_CHANNELS: 1,
+  HR_PATCH_SHAPE: [32, 32]
+}
+
 BATCH_SIZE: 32
 TRAIN_VALID_SPLIT: 0.1
 

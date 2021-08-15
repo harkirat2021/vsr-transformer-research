@@ -29,8 +29,7 @@ class VSRTE1(pl.LightningModule):
         self.upsample = UpsampleSeqLayer(seq_len=t, n_features=c, k=3, factor=scale)
 
         # Mask for now - sequence doesn't really make sense here does it?
-        self.src_mask = self.generate_empty_mask(t)
-        model.src_mask = model.src_mask.to(model.device) # Move to model device
+        self.src_mask = self.generate_empty_mask(t).to(self.device) # Move to model device
 
     def generate_square_subsequent_mask(self, sz):
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)

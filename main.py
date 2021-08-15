@@ -60,12 +60,14 @@ if __name__ == "__main__":
 
     # Init data
     print("Loading data...")
-    data_module = VideoDataModule(dataset_name=args.data.lower(),train_data_path=config["DATA"][args.data.upper()], valid_data_path=config["DATA"][args.data.upper()], scale=config["SCALE"], seq_len=config["SEQ_LEN"], patch_shape=config["HR_PATCH_SHAPE"], color_channel=False,
-                 prepared_seq=True, prepared_patch=False)
+    data_module = VideoDataModule(dataset_name=args.data.lower(), train_data_path=config["DATA"][args.data.upper()],
+                                batch_size=config["BATCH_SIZE"], scale=config["SCALE"],
+                                seq_len=config["SEQ_LEN"], patch_shape=config["HR_PATCH_SHAPE"],
+                                train_valid_split=config["TRAIN_VALID_SPLIT"], has_color_channel=False,
+                                prepared_seq=True, prepared_patch=True)
     print("LR data shape: ", data_module.train_dataset[:][0].shape)
     print("HR data shape: ", data_module.train_dataset[:][1].shape)
-
-    print(poop)
+    
     #### Init model ####
     
     # VSRSA1

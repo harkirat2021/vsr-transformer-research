@@ -11,11 +11,7 @@ NUM_CHANNELS: 3
 HR_PATCH_SHAPE: [32, 32]
 
 DATA: {
-  SAMPLE_NATGEO: {
-    TRAIN: "data/temp/leopard_climb.hdf5",
-    VALID: "data/temp/leopard_climb.hdf5",
-    TEST: "data/temp/leopard_climb.hdf5"
-  }
+  TEST_DATA: "data/temp/test_data.hdf5"
 }
 
 # Training

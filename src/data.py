@@ -6,7 +6,6 @@ from torch.utils.data import TensorDataset, Dataset, DataLoader
 from src.process_data import *
 from sklearn.model_selection import train_test_split
 
-
 class VideoDataModule(pl.LightningDataModule):
     def __init__(self, dataset_name, train_data_path, valid_data_path, scale, seq_len, patch_shape, color_channel,
                  prepared_seq, prepared_patch):

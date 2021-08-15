@@ -65,14 +65,14 @@ class VSRTE1(pl.LightningModule):
         x, y = train_batch
         outputs = self.forward(x)
         # Compute loss between all, but first and last frame
-        loss = self.mse_loss(outputs[1:-1], y[1:-1])
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
         self.log('train_loss', loss)
         return loss
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
         outputs = self.forward(x)
-        loss = self.mse_loss(outputs[1:-1], y[1:-1])
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
         self.log('valid_loss', loss)
 
     def configure_optimizers(self):
@@ -131,14 +131,14 @@ class VSRSA1(pl.LightningModule):
         x, y = train_batch
         outputs = self.forward(x)
         # Compute loss between all, but first and last frame
-        loss = self.mse_loss(outputs[1:-1], y[1:-1])
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
         self.log('train_loss', loss)
         return loss
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
         outputs = self.forward(x)
-        loss = self.mse_loss(outputs[1:-1], y[1:-1])
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
         self.log('valid_loss', loss)
 
     def configure_optimizers(self):

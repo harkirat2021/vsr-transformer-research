@@ -19,8 +19,12 @@ parser = argparse.ArgumentParser(description="Run the VSR pipeline")
 parser.add_argument('--task', type=str, help="'train' or 'evaluate'", required=True)
 parser.add_argument('--model_type', type=str, help="model architecture", required=True)
 parser.add_argument('--model_settings', type=str, help="params data to initialize model", required=True)
+
 parser.add_argument('--data', type=str, help="dataset to use for train, valid, and test", required=True)
+
 parser.add_argument('--num_epochs', type=int, help="number of epochs to train for")
+parser.add_argument('--num_gpus', type=int, default=0, help="number of gpus to train (0 to use cpu)")
+
 parser.add_argument('--model_load', type=str, help="flag for whether or not to load the model")
 parser.add_argument('--model_save', type=str, help="flag for whether or not to save the model")
 
@@ -40,7 +44,7 @@ if __name__ == "__main__":
         model_settings = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
     # Set experiment directory
-    experiment_dir = os.path.join(config["EXPERIMENT_SAVE_DIR"], args.data.lower(), args.model_settings.lower(), "scale_{}".format(config["SCALE"]), "patch_{}x{}x{}".format(config["NUM_CHANNELS"], *config["HR_PATCH_SHAPE"]))
+    experiment_dir = os.path.join(config["EXPERIMENT_SAVE_DIR"], args.data.lower(), args.model_settings.lower(), "scale_{}".format(config[args.data.upper()]["SCALE"]), "patch_{}x{}x{}".format(config[args.data.upper()]["NUM_CHANNELS"], *config[args.data.upper()]["HR_PATCH_SHAPE"]))
     print(experiment_dir)
 
     # Set checkpoint load path
@@ -60,53 +64,56 @@ if __name__ == "__main__":
 
     # Init data
     print("Loading data...")
-    data_module = VideoDataModule(dataset_name=args.data.lower(), train_data_path=config["DATA"][args.data.upper()],
-                                batch_size=config["BATCH_SIZE"], scale=config["SCALE"],
-                                seq_len=config["SEQ_LEN"], patch_shape=config["HR_PATCH_SHAPE"],
+    data_module = VideoDataModule(dataset_name=args.data.lower(), train_data_path=config[args.data.upper()]["PATH"],
+                                batch_size=config["BATCH_SIZE"], scale=config[args.data.upper()]["SCALE"],
+                                seq_len=config[args.data.upper()]["SEQ_LEN"], patch_shape=config[args.data.upper()]["HR_PATCH_SHAPE"],
                                 train_valid_split=config["TRAIN_VALID_SPLIT"], has_color_channel=False,
                                 prepared_seq=True, prepared_patch=True)
     print("LR data shape: ", data_module.train_dataset[:][0].shape)
     print("HR data shape: ", data_module.train_dataset[:][1].shape)
-    
+
     #### Init model ####
     
     # VSRSA1
     if str(args.model_type).lower() == "vsrsa1":
         print("Initializing model...")
         model = VSRSA1(name=args.model_settings.lower(),
-                        scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
-                        h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
+                        scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
+                        h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
+                        w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
                         **model_settings[args.model_settings.upper()])
         # Load model from checkpoint
         if check_load_path:
             print("Loading model from checkpoint...")
             model = model.load_from_checkpoint(checkpoint_path=check_load_path,
                             name=args.model_settings.lower(),
-                            scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
-                            h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
+                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
+                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
+                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
                             **model_settings[args.model_settings.upper()])
     
     # VSRTE1
     elif str(args.model_type).lower() == "vsrte1":
         print("Initializing model...")
         model = VSRTE1(name=args.model_settings.lower(),
-                        scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
-                        h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
+                        scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
+                        h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
+                        w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
                         **model_settings[args.model_settings.upper()])
         # Load model from checkpoint
         if check_load_path:
             print("Loading model from checkpoint...")
             model = model.load_from_checkpoint(checkpoint_path=check_load_path,
                             name=args.model_settings.lower(),
-                            scale=config["SCALE"], t=config["SEQ_LEN"], c=config["NUM_CHANNELS"],
-                            h=config["HR_PATCH_SHAPE"][0] // config["SCALE"], w=config["HR_PATCH_SHAPE"][1] // config["SCALE"],
+                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
+                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
+                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
                             **model_settings[args.model_settings.upper()])
 
     #### Run task ####
-
     if args.task == "train":
         print("Training...")
-        model = train(model=model, data_module=data_module, experiment_dir=experiment_dir, max_epochs=args.num_epochs, gpus=0, save=bool(args.model_save))
+        model = train(model=model, data_module=data_module, experiment_dir=experiment_dir, max_epochs=args.num_epochs, gpus=args.num_gpus, save=bool(args.model_save))
     
     elif args.task == "eval":
         print("Evaluating...")

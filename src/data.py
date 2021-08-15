@@ -18,6 +18,18 @@ class VideoDataModule(pl.LightningDataModule):
         self.train_dataset, self.valid_dataset = self.prepare_dataset(train_data_path, seq_len, patch_shape, train_valid_split,
                                                                       has_color_channel, prepared_seq, prepared_patch)
 
+    # Crop patches to be a power of 2
+    def center_crop_data(self, data):
+        original_w = data.shape[-1]
+        resize_w = 2**int(np.log(original_w)/np.log(2))
+        original_h = data.shape[-2]
+        resize_h = 2**int(np.log(original_h)/np.log(2))
+
+        edge_reduce_h = (original_h-resize_h) // 2
+        edge_reduce_w = (original_w-resize_w) // 2
+
+        return data[:,:,:,edge_reduce_h:original_h-edge_reduce_h,edge_reduce_w:original_w-edge_reduce_w]
+
     def prepare_dataset(self, data_path, seq_len, patch_shape, train_valid_split, has_color_channel, prepared_seq, prepared_patch):
         y = read_hdf5(filepath=data_path, group_name="data_hr")
         x = read_hdf5(filepath=data_path, group_name="data_lr")
@@ -37,6 +49,12 @@ class VideoDataModule(pl.LightningDataModule):
             x = prepare_patches(x, patch_shape, has_color_channel)
             y = prepare_patches(y, patch_shape, has_color_channel)
         
+        # Adjust size of patch to be power of 2
+        # TODO - GET RID OF THIS WHEN MAKING CUSTOM DATA
+        x = self.center_crop_data(x)
+        y = self.center_crop_data(y)
+
+        # Convert to torch tensors
         x = torch.tensor(x).float()
         y = torch.tensor(y).float()
 

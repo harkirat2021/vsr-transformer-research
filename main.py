@@ -13,8 +13,6 @@ from src.data import *
 # python3 main.py --task eval --model_type vsrsa1 --model_settings vsrsa1_sample --data sample_natgeo --check_load_path experiments/sample_natgeo/vsrsa1_sample/scale_4/patch_3x32x32/version_0/checkpoints/epoch=4-step=10249.ckpt
 # python3 main.py --task train --model_type vsrte1 --model_settings vsrte1_sample --data sample_natgeo --num_epochs 5  --model_save True
 
-# TODO - Set batch size
-
 parser = argparse.ArgumentParser(description="Run the VSR pipeline")
 parser.add_argument('--task', type=str, help="'train' or 'evaluate'", required=True)
 parser.add_argument('--model_type', type=str, help="model architecture", required=True)

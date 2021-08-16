@@ -144,3 +144,5 @@ class VSRSA1(pl.LightningModule):
     def configure_optimizers(self):
       optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
       return optimizer
+
+    #docker run -it --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /home:/home --rm ufoym/deepo python /home/renpin/vsr-transformer-research/main.py --task train --model_type vsrte1 --model_settings vsrte1_1 --data myamar_data --num_epochs 1 --num_gpus 0 --model_save False --model_load False

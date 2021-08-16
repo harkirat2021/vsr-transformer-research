@@ -12,6 +12,7 @@ from src.data import *
 # python3 main.py --task train --model_type vsrsa1 --model_settings vsrsa1_sample --data sample_natgeo --num_epochs 2  --model_save True --check_load_path experiments/sample_natgeo/vsrsa1_sample/scale_4/patch_3x32x32/version_1/checkpoints/epoch=1-step=4099.ckpt
 # python3 main.py --task eval --model_type vsrsa1 --model_settings vsrsa1_sample --data sample_natgeo --check_load_path experiments/sample_natgeo/vsrsa1_sample/scale_4/patch_3x32x32/version_0/checkpoints/epoch=4-step=10249.ckpt
 # python3 main.py --task train --model_type vsrte1 --model_settings vsrte1_sample --data sample_natgeo --num_epochs 5  --model_save True
+# docker run -it --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /home:/home --rm ufoym/deepo python /home/renpin/vsr-transformer-research/main.py --task train --model_type vsrte1 --model_settings vsrte1_1 --data myamar_data --num_epochs 1 --num_gpus 0 --model_save False --model_load False
 
 parser = argparse.ArgumentParser(description="Run the VSR pipeline")
 parser.add_argument('--task', type=str, help="'train' or 'evaluate'", required=True)

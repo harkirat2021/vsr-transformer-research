@@ -2,21 +2,25 @@
 # Paths
 EXPERIMENT_SAVE_DIR: "experiments"
 
-# General
-SCALE: 4
-
 # Data
-SEQ_LEN: 5
-NUM_CHANNELS: 3
-HR_PATCH_SHAPE: [32, 32]
-
-DATA: {
-  SAMPLE_NATGEO: {
-    TRAIN: "data/temp/leopard_climb.hdf5",
-    VALID: "data/temp/leopard_climb.hdf5",
-    TEST: "data/temp/leopard_climb.hdf5"
-  }
+TEST_DATA: {
+  PATH: "data/temp/test_data.hdf5",
+  SCALE: 4,
+  SEQ_LEN: 5,
+  NUM_CHANNELS: 1,
+  HR_PATCH_SHAPE: [32, 32]
 }
+
+MYAMAR_DATA: {
+  PATH: "/home/xijun/sony/train_u4_no_mc_filtered.hdf5",
+  SCALE: 4,
+  SEQ_LEN: 5,
+  NUM_CHANNELS: 1,
+  HR_PATCH_SHAPE: [32, 32]
+}
+
+BATCH_SIZE: 32
+TRAIN_VALID_SPLIT: 0.1
 
 # Training
 CHECKPOINT_VALID_EVERY_N_EPOCH: 2

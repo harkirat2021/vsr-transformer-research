@@ -1,6 +1,14 @@
 
-# VSRSA1
+###### VSRSA1 ######
+# Sample
 VSRSA1_SAMPLE: {embed_dim: 4, n_esthidden: 4, n_estlayers: 4, n_Convhidden: 20, n_Convlayers: 2, n_stride: 2, dropout: 0.5}
 
-# VSRTE1
+# 2.6 M Params
+VSRSA1_1: {embed_dim: 128, n_esthidden: 128, n_estlayers: 2, n_Convhidden: 128, n_Convlayers: 8, n_stride: 2, dropout: 0.2}
+
+###### VSRTE1 ######
+# Sample
 VSRTE1_SAMPLE: {embed_dim: 4, n_heads: 4, n_transformerhidden: 4, n_transformerlayers: 2, n_Convhidden: 20, n_Convlayers: 2, n_stride: 2, dropout: 0.5}
+
+# 2.6 M params
+VSRTE1_1: {embed_dim: 128, n_heads: 8, n_transformerhidden: 128, n_transformerlayers: 2, n_Convhidden: 128, n_Convlayers: 8, n_stride: 2, dropout: 0.2}

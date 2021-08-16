@@ -6,3 +6,4 @@ torch
 pytorch_msssim
 tensorboard
 pytorch-lightning
+-U scikit-learn

@@ -10,13 +10,8 @@ import h5py
 
 def read_hdf5(filepath, group_name):
     with h5py.File(filepath, "r") as f:
-        # TODO - only gets group 1
-        # List all groups
-        a_group_key = list(f.keys())
-
         # Get the data
-        data = []
-        data += (np.array(list(f[key])) for key in a_group_key)
+        data = np.array(list(f[group_name]))
 
     return data
 

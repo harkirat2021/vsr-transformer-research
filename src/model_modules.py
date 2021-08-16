@@ -340,8 +340,8 @@ class FrameDecoder(nn.Module):
         self.up_sample = nn.Upsample(scale_factor=s)
 
     def forward(self, x):
-        x = self.fc1(x).reshape(x.shape[0], self.n_hidden, self.h // 4, self.w // 4)
-   
+        x = self.fc1(x)
+        x = x.reshape(x.shape[0], self.n_hidden, self.h // 4, self.w // 4)
         for i, layer in enumerate(self.layers):
             if i < 1:
                 x = F.relu(layer(self.up_sample(x)))

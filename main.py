@@ -72,6 +72,24 @@ if __name__ == "__main__":
     print("HR data shape: ", data_module.train_dataset[:][1].shape)
 
     #### Init model ####
+
+    # VSRCNN1
+    if str(args.model_type).lower() == "vsrcnn1":
+        print("Initializing model...")
+        model = VSRCNN1(name=args.model_settings.lower(),
+                        scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
+                        h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
+                        w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
+                        **model_settings[args.model_settings.upper()])
+        # Load model from checkpoint
+        if check_load_path:
+            print("Loading model from checkpoint...")
+            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
+                            name=args.model_settings.lower(),
+                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
+                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
+                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
+                            **model_settings[args.model_settings.upper()])
     
     # VSRSA1
     if str(args.model_type).lower() == "vsrsa1":

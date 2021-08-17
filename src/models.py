@@ -84,6 +84,7 @@ class VSRTE1(pl.LightningModule):
       return optimizer
 
 
+
 """ VSR Seq Autoencoder """
 class VSRSA1(pl.LightningModule):
     def __init__(self, name, scale, t, c, h, w, embed_dim, n_esthidden, n_estlayers, n_Convhidden, n_Convlayers, n_stride, dropout):
@@ -149,4 +150,69 @@ class VSRSA1(pl.LightningModule):
       optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
       return optimizer
 
-    #docker run -it --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /home:/home --rm ufoym/deepo python /home/renpin/vsr-transformer-research/main.py --task train --model_type vsrte1 --model_settings vsrte1_1 --data myamar_data --num_epochs 1 --num_gpus 0 --model_save False --model_load False
+""" VSR CNN """
+class VSRCNN1(pl.LightningModule):
+    def __init__(self, name, scale, t, c, h, w, n_hidden, n_layers):
+        super(VSRCNN1, self).__init__()
+        self.model_type = 'CNN'
+        self.name = name
+
+        self.conv1 = nn.Conv2d(in_channels=c, out_channels=n_hidden//2, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(in_channels=n_hidden//2, out_channels=n_hidden, kernel_size=3, stride=1, padding=1)
+        self.layers = torch.nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Conv2d(n_hidden, n_hidden, 3, stride=1, padding=1)
+                ) for i in range(n_layers)
+            ]
+        )
+        self.conv3 = nn.Conv2d(in_channels=n_hidden, out_channels=c, kernel_size=3, stride=1, padding=1)
+
+        self.up_sample = nn.Upsample(scale_factor=2)
+
+    """ (batch_dim, time_dim, channel_dim, height_dim, width_dim) -> (batch_dim, time_dim, channel_dim, height_dim, width_dim) """
+    def forward(self, x):
+        # Swap batch and sequence dimension
+        x = torch.transpose(x, 0, 1)
+
+        y_seq = []
+        for xi in x:
+            xi = F.relu(self.conv2(self.up_sample(F.relu(self.conv1(self.up_sample(xi))))))
+            for layer in self.layers:
+                xi = F.relu(layer(xi))
+            y_seq.append(F.sigmoid(self.conv3(xi)))
+          
+        y = torch.stack(y_seq, dim=0)
+
+        # Swap back batch and sequence dimension
+        y = torch.transpose(y, 0, 1)
+
+        return y
+    
+    ### Pytorch Lightning functions ###
+
+    def mse_loss(self, outputs, targets):
+        return F.mse_loss(outputs, targets)
+
+    def training_step(self, train_batch, batch_idx):
+        x, y = train_batch
+        outputs = self.forward(x)
+        # Compute loss between all, but first and last frame
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
+        self.log('train_loss', loss)
+        return loss
+
+    def validation_step(self, val_batch, batch_idx):
+        x, y = val_batch
+        outputs = self.forward(x)
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
+        self.log('valid_loss', loss)
+
+    def configure_optimizers(self):
+      optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+      return optimizer
+
+
+
+
+#docker run -it --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0 -v /home:/home --rm ufoym/deepo python /home/renpin/vsr-transformer-research/main.py --task train --model_type vsrte1 --model_settings vsrte1_1 --data myamar_data --num_epochs 1 --num_gpus 0 --model_save False --model_load False

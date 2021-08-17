@@ -41,6 +41,10 @@ class VSRTE1(pl.LightningModule):
         return mask
 
     def forward(self, src):
+        # Move to model device if not on
+        if self.device != self.src_mask.device:
+            self.src_mask = self.src_mask.to(self.device)
+            
         # Swap batch and sequence dimension
         src = torch.transpose(src, 0, 1)
 

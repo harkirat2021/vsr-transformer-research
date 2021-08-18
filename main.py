@@ -137,10 +137,10 @@ if __name__ == "__main__":
 
         results_str = "{}\n".format(experiment_dir.upper())
 
-        psnr, ssim = evaluate(model=model, eval_dataloader=data_module.train_dataloader())
+        psnr, ssim = evaluate(model=model, data=args.data.upper(), eval_dataloader=data_module.train_dataloader())
         results_str += "TRAIN: PSNR: {} SSIM: {}\n".format(psnr, ssim)
 
-        psnr, ssim = evaluate(model=model, eval_dataloader=data_module.val_dataloader())
+        psnr, ssim = evaluate(model=model, data=args.data.upper(), eval_dataloader=data_module.val_dataloader())
         results_str += "VALID: PSNR: {} SSIM: {}\n".format(psnr, ssim)
         
         # TODO test data...

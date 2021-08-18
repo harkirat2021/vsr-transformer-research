@@ -13,10 +13,10 @@ from src.metrics import *
 with open("config.yml", "r") as ymlfile:
     config = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-def evaluate(model, eval_dataloader):
+def evaluate(model, data, eval_dataloader):
     model.eval()
 
-    metrics_sr = MetricsSR(scale=config["SCALE"])
+    metrics_sr = MetricsSR(scale=config[data]["SCALE"], win_size=config[data]["HR_PATCH_SHAPE"][0]+1)
 
     psnr = 0
     ssim = 0
@@ -25,6 +25,8 @@ def evaluate(model, eval_dataloader):
     with torch.no_grad():
         for x, y in eval_dataloader:
             out = model(x)
+            out = out[:,config[data]["SEQ_LEN"]//2,:,:,:] # Only keep middle frame
+            y = y[:,0,:,:,:] # Use only dim
             psnr += metrics_sr.PSNR(out, y)
             ssim += metrics_sr.SSIMCustom(out, y)
             num_batches += 1

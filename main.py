@@ -34,6 +34,9 @@ if __name__ == "__main__":
     args.model_load = args.model_load == "True"
     args.model_save = args.model_save == "True"
 
+    if args.task == "train" and not args.num_epochs:
+        raise Exception("Must set num epochs for train task")
+
     # Get all config values
     with open("config.yml", "r") as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.FullLoader)

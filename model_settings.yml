@@ -6,6 +6,12 @@ VSRTE1_SAMPLE: {embed_dim: 4, n_heads: 4, n_transformerhidden: 4, n_transformerl
 # 2.6 M params
 VSRTE1_1: {embed_dim: 128, n_heads: 8, n_transformerhidden: 128, n_transformerlayers: 2, n_Convhidden: 128, n_Convlayers: 8, n_stride: 2, dropout: 0.2}
 
+# 500K params - Larger transform, smaller conv
+VSRTE1_2: {embed_dim: 64, n_heads: 4, n_transformerhidden: 64, n_transformerlayers: 6, n_Convhidden: 64, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
+
+# 500K params - Smaller conv, larger transform
+VSRTE1_3: {embed_dim: 64, n_heads: 4, n_transformerhidden: 64, n_transformerlayers: 6, n_Convhidden: 64, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
+
 
 ###### VSRSA1 ######
 # Sample
@@ -13,7 +19,6 @@ VSRSA1_SAMPLE: {embed_dim: 4, n_esthidden: 4, n_estlayers: 4, n_Convhidden: 20, 
 
 # 2.6 M Params
 VSRSA1_1: {embed_dim: 128, n_esthidden: 128, n_estlayers: 2, n_Convhidden: 128, n_Convlayers: 8, n_stride: 2, dropout: 0.2}
-
 
 ###### VSRCNN1 ######
 

@@ -9,9 +9,8 @@ VSRTE1_1: {embed_dim: 128, n_heads: 8, n_transformerhidden: 128, n_transformerla
 # 500K params - Larger transform, smaller conv
 VSRTE1_2: {embed_dim: 64, n_heads: 4, n_transformerhidden: 64, n_transformerlayers: 6, n_Convhidden: 64, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
 
-# 500K params - Smaller conv, larger transform
-VSRTE1_3: {embed_dim: 64, n_heads: 4, n_transformerhidden: 64, n_transformerlayers: 6, n_Convhidden: 64, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
-
+# 500K params - Larger conv, smaller transform
+VSRTE1_3: {embed_dim: 64, n_heads: 4, n_transformerhidden: 64, n_transformerlayers: 2, n_Convhidden: 64, n_Convlayers: 8, n_stride: 2, dropout: 0.2}
 
 ###### VSRSA1 ######
 # Sample

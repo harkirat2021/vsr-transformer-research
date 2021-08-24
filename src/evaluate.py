@@ -27,7 +27,7 @@ def evaluate(model, data, eval_dataloader):
         for x, y in eval_dataloader:
             b += 1
             if b % 500 == 0:
-                print("{} / {}".format(b, len(eval_dataloader)))
+                print("{} / {} - {}".format(b, len(eval_dataloader), psnr))
             out = model(x)
             out = out[:,config[data]["SEQ_LEN"]//2,:,:,:] # Only keep middle frame
             y = y[:,0,:,:,:] # Use only dim

@@ -26,7 +26,7 @@ def evaluate(model, data, eval_dataloader):
     with torch.no_grad():
         for x, y in eval_dataloader:
             b += 1
-            if b % len(eval_dataloader) // 10 == 0:
+            if b % 500 == 0:
                 print("{} / {}".format(b, len(eval_dataloader)))
             out = model(x)
             out = out[:,config[data]["SEQ_LEN"]//2,:,:,:] # Only keep middle frame

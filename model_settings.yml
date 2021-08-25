@@ -1,3 +1,4 @@
+## NOTE: DONT CHANGE ANY OLD SETTINGS - WILL CAUSE MODEL LOAD ISSUE FOR OLD MODELS
 
 ###### VSRTE1 ######
 # Sample
@@ -15,8 +16,13 @@ VSRTE1_3: {embed_dim: 64, n_heads: 4, n_transformerhidden: 64, n_transformerlaye
 # 500K params - Larger conv, smaller transform
 VSRTE1_4: {embed_dim: 64, n_heads: 4, n_transformerhidden: 32, n_transformerlayers: 2, n_Convhidden: 32, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
 
-###### VSRTE1 ######
+###### VSRTE2 ######
 
+# 800K params
+VSRTE2_1: {embed_dim: 128, n_heads: 4, n_transformerhidden: 64, n_transformerlayers: 5, n_Convhidden: 32, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
+
+###### VSRTP1 ######
+# 700K params
 VSRTP1_1: {embed_dim: 8, n_heads: 4, n_transformerhidden: 256, n_transformerlayers: 6, n_Convhidden: 8, n_Convlayers: 1, n_stride: 2, dropout: 0.2}
 
 ###### VSRSA1 ######

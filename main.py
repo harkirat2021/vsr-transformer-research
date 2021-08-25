@@ -130,6 +130,24 @@ if __name__ == "__main__":
                             w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
                             **model_settings[args.model_settings.upper()])
     
+    # VSRTE2 - THE HxW SET HERE IS NOT SCALED DOWN - FIX THIS FOR CONSISTENCY
+    elif str(args.model_type).lower() == "vsrte2":
+        print("Initializing model...")
+        model = VSRTE2(name=args.model_settings.lower(),
+                        scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
+                        h=config[args.data.upper()]["HR_PATCH_SHAPE"][0],
+                        w=config[args.data.upper()]["HR_PATCH_SHAPE"][1],
+                        **model_settings[args.model_settings.upper()])
+        # Load model from checkpoint
+        if check_load_path:
+            print("Loading model from checkpoint...")
+            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
+                            name=args.model_settings.lower(),
+                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
+                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0],
+                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1],
+                            **model_settings[args.model_settings.upper()])
+    
     # VSRTP1 - NOTE - THE HxW SET HERE IS NOT SCALED DOWN - FIX THIS FOR CONSISTENCY
     elif str(args.model_type).lower() == "vsrtp1":
         print("Initializing model...")

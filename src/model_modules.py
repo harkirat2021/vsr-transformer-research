@@ -42,6 +42,7 @@ def primeFactors(n):
     return factors
 
 
+
 class UpsampleLayer(nn.Module):
     def __init__(self, n_features, k, factor=2, act_class=nn.ReLU,
                  act_params={'inplace': True}):
@@ -377,6 +378,58 @@ class FrameSeqDecoder(nn.Module):
             x = self.frame_decoder(x)
             y_seq.append(x)
         return torch.stack(y_seq, dim=0)
+
+class PatchEncode(nn.Module):
+    def __init__(self, f, c, h, w, emsize, p):
+        super(PatchEncode, self).__init__()
+        self.emsize = emsize
+        self.conv1 = nn.Conv3d(in_channels=c, out_channels=emsize, kernel_size=(f, p, p), stride=p, padding=0)
+
+    def forward(self, x):
+        # Swap channels and frames so we treat it as 3D
+        x = torch.transpose(x, 1, 2)
+        x = self.conv1(x)
+        x = torch.flatten(x, 2)
+        x = torch.transpose(x, 1, 2)
+        return x
+        
+class PatchDecode(nn.Module):
+    def __init__(self, f, c, h, w, emsize, n_hidden, n_layers):
+        super(PatchDecode, self).__init__()
+        self.emsize = emsize
+        self.n_hidden = n_hidden
+        self.f = f
+        self.c = c
+        self.h = h
+        self.w = w
+        
+        # TODO - temp for just this instance of the model
+        self.fc1 = nn.Linear(16 * emsize, f * c * w * h)
+        self.conv1 = nn.Conv3d(1, n_hidden, 3, padding=1)
+        self.layers = torch.nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Conv3d(n_hidden, n_hidden, 3, padding=1)
+                ) for i in range(n_layers)
+            ]
+        )
+        self.conv2 = nn.Conv3d(n_hidden, c, 3, padding=1)
+
+    def forward(self, x):
+        # Swap channels and frames so we treat it as 3D
+        x = torch.flatten(x, 1)
+        x = self.fc1(x)
+        x = x.reshape(x.shape[0], self.c, self.f, self.h, self.w)
+
+        x = F.relu(self.conv1(x))
+        for layer in self.layers:
+            x = F.relu(layer(x))
+        x = F.relu(self.conv2(x))
+
+        # Swap channels and frames back
+        x = torch.transpose(x, 1, 2)
+
+        return x
 
 """  """
 class FrameAutoencoder(nn.Module):

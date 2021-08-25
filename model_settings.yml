@@ -15,6 +15,10 @@ VSRTE1_3: {embed_dim: 64, n_heads: 4, n_transformerhidden: 64, n_transformerlaye
 # 500K params - Larger conv, smaller transform
 VSRTE1_4: {embed_dim: 64, n_heads: 4, n_transformerhidden: 32, n_transformerlayers: 2, n_Convhidden: 32, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
 
+###### VSRTE1 ######
+
+VSRTP1_1: {embed_dim: 8, n_heads: 4, n_transformerhidden: 256, n_transformerlayers: 6, n_Convhidden: 8, n_Convlayers: 1, n_stride: 2, dropout: 0.2}
+
 ###### VSRSA1 ######
 # Sample
 VSRSA1_SAMPLE: {embed_dim: 4, n_esthidden: 4, n_estlayers: 4, n_Convhidden: 20, n_Convlayers: 2, n_stride: 2, dropout: 0.5}

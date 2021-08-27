@@ -21,6 +21,7 @@ VSRTE1_4: {embed_dim: 64, n_heads: 4, n_transformerhidden: 32, n_transformerlaye
 # 800K params
 VSRTE2_1: {embed_dim: 128, n_heads: 4, n_transformerhidden: 64, n_transformerlayers: 5, n_Convhidden: 32, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
 
+# 2.2M params
 VSRTE2_2: {embed_dim: 256, n_heads: 4, n_transformerhidden: 256, n_transformerlayers: 4, n_Convhidden: 32, n_Convlayers: 4, n_stride: 2, dropout: 0.2}
 
 
@@ -28,7 +29,8 @@ VSRTE2_2: {embed_dim: 256, n_heads: 4, n_transformerhidden: 256, n_transformerla
 # 700K params
 VSRTP1_1: {embed_dim: 8, n_heads: 4, n_transformerhidden: 256, n_transformerlayers: 6, n_Convhidden: 8, n_Convlayers: 1, n_stride: 2, dropout: 0.2}
 
-VSRTP1_2: {embed_dim: 16, n_heads: 4, n_transformerhidden: 256, n_transformerlayers: 4, n_Convhidden: 32, n_Convlayers: 1, n_stride: 2, dropout: 0.2}
+# 2.2M params
+VSRTP1_2: {embed_dim: 24, n_heads: 4, n_transformerhidden: 256, n_transformerlayers: 6, n_Convhidden: 64, n_Convlayers: 1, n_stride: 2, dropout: 0.2}
 
 ###### VSRSA1 ######
 # Sample

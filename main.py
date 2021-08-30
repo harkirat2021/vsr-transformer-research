@@ -75,97 +75,41 @@ if __name__ == "__main__":
     print("HR data shape: ", data_module.train_dataset[:][1].shape)
 
     #### Init model ####
+    print("Initializing model...")
+    general_settings = {"name": args.model_settings.lower(),
+                        "scale": config[args.data.upper()]["SCALE"],
+                        "t": config[args.data.upper()]["SEQ_LEN"],
+                        "c": config[args.data.upper()]["NUM_CHANNELS"],
+                        "h": config[args.data.upper()]["HR_PATCH_SHAPE"][0],
+                        "w": config[args.data.upper()]["HR_PATCH_SHAPE"][1]}
 
-    # VSRCNN1
+    # VSRCNN
     if str(args.model_type).lower() == "vsrcnn1":
-        print("Initializing model...")
-        model = VSRCNN1(name=args.model_settings.lower(),
-                        scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                        h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
-                        w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
-                        **model_settings[args.model_settings.upper()])
-        # Load model from checkpoint
-        if check_load_path:
-            print("Loading model from checkpoint...")
-            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
-                            name=args.model_settings.lower(),
-                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
-                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
-                            **model_settings[args.model_settings.upper()])
-    
-    # VSRSA1
-    if str(args.model_type).lower() == "vsrsa1":
-        print("Initializing model...")
-        model = VSRSA1(name=args.model_settings.lower(),
-                        scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                        h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
-                        w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
-                        **model_settings[args.model_settings.upper()])
-        # Load model from checkpoint
-        if check_load_path:
-            print("Loading model from checkpoint...")
-            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
-                            name=args.model_settings.lower(),
-                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
-                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
-                            **model_settings[args.model_settings.upper()])
-    
-    # VSRTE1
+        model = VSRCNN1(**general_settings, **model_settings[args.model_settings.upper()])
+    # VSRTE
     elif str(args.model_type).lower() == "vsrte1":
-        print("Initializing model...")
-        model = VSRTE1(name=args.model_settings.lower(),
-                        scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                        h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
-                        w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
-                        **model_settings[args.model_settings.upper()])
-        # Load model from checkpoint
-        if check_load_path:
-            print("Loading model from checkpoint...")
-            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
-                            name=args.model_settings.lower(),
-                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0] // config[args.data.upper()]["SCALE"],
-                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1] // config[args.data.upper()]["SCALE"],
-                            **model_settings[args.model_settings.upper()])
-    
-    # VSRTE2 - THE HxW SET HERE IS NOT SCALED DOWN - FIX THIS FOR CONSISTENCY
+        model = VSRTE1(**general_settings, **model_settings[args.model_settings.upper()])
     elif str(args.model_type).lower() == "vsrte2":
-        print("Initializing model...")
-        model = VSRTE2(name=args.model_settings.lower(),
-                        scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                        h=config[args.data.upper()]["HR_PATCH_SHAPE"][0],
-                        w=config[args.data.upper()]["HR_PATCH_SHAPE"][1],
-                        **model_settings[args.model_settings.upper()])
-        # Load model from checkpoint
-        if check_load_path:
-            print("Loading model from checkpoint...")
-            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
-                            name=args.model_settings.lower(),
-                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0],
-                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1],
-                            **model_settings[args.model_settings.upper()])
-    
-    # VSRTP1 - NOTE - THE HxW SET HERE IS NOT SCALED DOWN - FIX THIS FOR CONSISTENCY
+        model = VSRTE2(**general_settings, **model_settings[args.model_settings.upper()])
+    # VSRSA
+    elif str(args.model_type).lower() == "vsrsa1":
+        model = VSRSA1(**general_settings, **model_settings[args.model_settings.upper()])
+    # VSRTP
     elif str(args.model_type).lower() == "vsrtp1":
-        print("Initializing model...")
-        model = VSRTP1(name=args.model_settings.lower(),
+        model = VSRTP1(**general_settings, **model_settings[args.model_settings.upper()])
+    elif str(args.model_type).lower() == "vsrtp2":
+        model = VSRTP2(**general_settings, **model_settings[args.model_settings.upper()])
+
+    # Load model from checkpoint
+    if check_load_path:
+        print("Loading model from checkpoint...")
+        model = model.load_from_checkpoint(checkpoint_path=check_load_path,
+                        name=args.model_settings.lower(),
                         scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
                         h=config[args.data.upper()]["HR_PATCH_SHAPE"][0],
                         w=config[args.data.upper()]["HR_PATCH_SHAPE"][1],
                         **model_settings[args.model_settings.upper()])
-        # Load model from checkpoint
-        if check_load_path:
-            print("Loading model from checkpoint...")
-            model = model.load_from_checkpoint(checkpoint_path=check_load_path,
-                            name=args.model_settings.lower(),
-                            scale=config[args.data.upper()]["SCALE"], t=config[args.data.upper()]["SEQ_LEN"], c=config[args.data.upper()]["NUM_CHANNELS"],
-                            h=config[args.data.upper()]["HR_PATCH_SHAPE"][0],
-                            w=config[args.data.upper()]["HR_PATCH_SHAPE"][1],
-                            **model_settings[args.model_settings.upper()])
-
+    
     #### Run task ####
     if args.task == "train":
         print("Training...")

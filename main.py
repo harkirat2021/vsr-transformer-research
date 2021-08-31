@@ -99,6 +99,12 @@ if __name__ == "__main__":
         model = VSRTP1(**general_settings, **model_settings[args.model_settings.upper()])
     elif str(args.model_type).lower() == "vsrtp2":
         model = VSRTP2(**general_settings, **model_settings[args.model_settings.upper()])
+    elif str(args.model_type).lower() == "vsrtp3":
+        model = VSRTP3(**general_settings, **model_settings[args.model_settings.upper()])
+    elif str(args.model_type).lower() == "vsrtp4":
+        model = VSRTP4(**general_settings, **model_settings[args.model_settings.upper()])
+    else:
+        raise Exception("Model not found")
 
     # Load model from checkpoint
     if check_load_path:

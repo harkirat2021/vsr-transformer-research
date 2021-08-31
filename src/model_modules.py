@@ -422,8 +422,6 @@ class PatchDecode(nn.Module):
         x = x.reshape(x.shape[0], self.c, self.f, self.h, self.w)
 
         x = F.relu(self.conv1(x))
-        for layer in self.layers:
-            x = F.relu(layer(x))
         x = F.relu(self.conv2(x))
 
         # Swap channels and frames back
@@ -431,6 +429,30 @@ class PatchDecode(nn.Module):
 
         return x
 
+class ConvTransform(nn.Module):
+    def __init__(self, c, n_hidden, n_layers):
+        super(ConvTransform, self).__init__()
+
+        self.conv1  = nn.Conv3d(c, n_hidden, 3, padding=1)
+        self.layers = torch.nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Conv3d(n_hidden, n_hidden, 3, padding=1)
+                ) for i in range(n_layers)
+            ]
+        )
+        self.conv2 = nn.Conv3d(n_hidden, c, 3, padding=1)
+
+    def forward(self, x):
+        # Swap channels and frames so we treat it as 3D
+        x = torch.transpose(x, 1, 2)
+        x = F.relu(self.conv1(x))
+        for i, layer in enumerate(self.layers):
+            x = F.relu(layer(x))
+        x = F.relu(self.conv2(x))
+        x = torch.transpose(x, 1, 2)
+        return x
+        
 """  """
 class FrameAutoencoder(nn.Module):
     def __init__(self, c, h, w, e):

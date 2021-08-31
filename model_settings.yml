@@ -39,6 +39,13 @@ VSRTP1_3: {embed_dim: 16, n_heads: 4, n_transformerhidden: 128, n_transformerlay
 # 700K params
 VSRTP2_1: {embed_dim: 8, n_heads: 4, n_transformerhidden: 256, n_transformerlayers: 6, n_Convhidden: 8, n_Convlayers: 1, n_stride: 2, dropout: 0.2}
 
+###### VSRTP3 ######
+# 700K params
+VSRTP3_1: {embed_dim: 8, n_heads: 4, n_transformerhidden: 128, n_transformerlayers: 4, n_Convhidden: 20, n_Convlayers: 3, n_stride: 2, dropout: 0.2}
+
+###### VSRTP4 ######
+# 700K params
+VSRTP4_1: {embed_dim: 8, n_heads: 4, n_transformerhidden: 256, n_transformerlayers: 6, n_Convhidden: 32, n_Convlayers: 12, n_stride: 2, dropout: 0.2}
 
 ###### VSRSA1 ######
 # Sample

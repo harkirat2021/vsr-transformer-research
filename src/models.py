@@ -196,7 +196,7 @@ class VSRTP2(VSRModelBase):
         x = torch.transpose(x, 0, 1)
         x = self.patch_decoder(x)
 
-        x = x + src # res connection
+        y = x + src # res connection
 
         return y
 

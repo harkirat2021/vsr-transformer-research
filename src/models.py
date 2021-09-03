@@ -188,10 +188,6 @@ class VSRTP2(VSRModelBase):
         # Forwad pass
         src = self.upsample(src)
 
-        src = torch.transpose(src, 2, 1)
-        src = F.relu(self.conv1(src))
-        src = torch.transpose(src, 2, 1)
-
         x = self.patch_encoder(src)
         x = torch.transpose(x, 0, 1)
         x = x * math.sqrt(self.embed_dim)
@@ -201,11 +197,6 @@ class VSRTP2(VSRModelBase):
         x = self.patch_decoder(x)
 
         x = x + src # res connection
-
-        x = torch.transpose(x, 2, 1)
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
-        y = torch.transpose(x, 2, 1)
 
         return y
 
@@ -222,6 +213,9 @@ class VSRTP3(VSRModelBase):
 
         self.convtrans1 = ConvTransform(c, n_Convhidden, n_Convlayers)
         self.convtrans2 = ConvTransform(c, n_Convhidden, n_Convlayers)
+
+        #self.convtrans1 = VSRCNN1("", scale, t, c, h, w, n_Convhidden, n_Convlayers, use_upsample=False)
+        #self.convtrans2 = VSRCNN1("", scale, t, c, h, w, n_Convhidden, n_Convlayers, use_upsample=False)
 
         # TODO add more power in this layer
         self.upsample = UpsampleSeqLayer(seq_len=t, n_features=c, k=3, factor=scale)
@@ -479,9 +473,10 @@ class VSRSA1(VSRModelBase):
 
 """ VSR CNN """
 class VSRCNN1(VSRModelBase):
-    def __init__(self, name, scale, t, c, h, w, n_hidden, n_layers):
+    def __init__(self, name, scale, t, c, h, w, n_hidden, n_layers, use_upsample=True):
         super(VSRCNN1, self).__init__(name, scale, t, c, h, w)
         self.model_type = 'CNN'
+        self.use_upsample = use_upsample
 
         self.conv1 = nn.Conv2d(in_channels=c, out_channels=n_hidden//2, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(in_channels=n_hidden//2, out_channels=n_hidden, kernel_size=3, stride=1, padding=1)
@@ -503,7 +498,10 @@ class VSRCNN1(VSRModelBase):
 
         y_seq = []
         for xi in x:
-            xi = F.relu(self.conv2(self.up_sample(F.relu(self.conv1(self.up_sample(xi))))))
+            if self.use_upsample:
+                xi = F.relu(self.conv2(self.up_sample(F.relu(self.conv1(self.up_sample(xi))))))
+            else:
+                xi = F.relu(self.conv2(F.relu(self.conv1(xi))))
             for layer in self.layers:
                 xi = F.relu(layer(xi))
             y_seq.append(F.sigmoid(self.conv3(xi)))

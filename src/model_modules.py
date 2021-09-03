@@ -449,7 +449,7 @@ class ConvTransform(nn.Module):
         x = F.relu(self.conv1(x))
         for i, layer in enumerate(self.layers):
             x = F.relu(layer(x))
-        x = F.relu(self.conv2(x))
+        x = F.sigmoid(self.conv2(x))
         x = torch.transpose(x, 1, 2)
         return x
         

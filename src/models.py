@@ -224,7 +224,6 @@ class VSRTP3(VSRModelBase):
         self.patch_encoder = PatchEncode(t, c, h, w, embed_dim, 8)
         self.patch_decoder = PatchDecode(t, c, h, w, embed_dim, n_Convhidden, n_Convlayers)
 
-        
         # Mask for now - sequence doesn't really make sense here does it?
         # TODO - NEED TO CHANGE PATCH DIM
         self.src_mask = self.generate_empty_mask(16).to(self.device) # Move to model device
@@ -302,10 +301,6 @@ class VSRTP4(VSRModelBase):
             
         # Forwad pass
         src = self.upsample(src)
-
-        src = torch.transpose(src, 2, 1)
-        src = F.relu(self.conv1(src))
-        src = torch.transpose(src, 2, 1)
         
         cty = self.convtrans(src)
 
@@ -317,12 +312,7 @@ class VSRTP4(VSRModelBase):
         x = torch.transpose(x, 0, 1)
         x = self.patch_decoder(x)
 
-        x = x + src + cty # triple res connection
-
-        x = torch.transpose(x, 2, 1)
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
-        y = torch.transpose(x, 2, 1)
+        y = x + src + cty # triple res connection
 
         return y
 

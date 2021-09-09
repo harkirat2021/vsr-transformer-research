@@ -19,6 +19,14 @@ MYAMAR_DATA: {
   HR_PATCH_SHAPE: [32, 32]
 }
 
+VIMEO90K_DATA: {
+  PATH: "/home/xijun/sony/train_u4_no_mc_filtered.hdf5",
+  SCALE: 4,
+  SEQ_LEN: 7,
+  NUM_CHANNELS: 3,
+  HR_PATCH_SHAPE: [32, 32]
+}
+
 BATCH_SIZE: 32
 TRAIN_VALID_SPLIT: 0.1
 

@@ -21,7 +21,7 @@ def read_hdf5(filepath, group_name):
 
 def write_hdf5(data, filename, groupname):
     with h5py.File(filename, "w") as data_file:
-        data_file.create_dataset("group_name", data=data)
+        data_file.create_dataset(groupname, data=data)
 
 
 """ Convert video into numpy """

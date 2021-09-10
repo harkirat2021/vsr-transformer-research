@@ -8,6 +8,7 @@ if __name__ == "__main__":
     rootdir = '/home/harkirat/data/vimeo/vimeo_septuplet/sequences'
     save_dir = "/home/harkirat/data/vimeo/processed"
 
+    print("Reading files...")
     seqs = []
     for subdir, dirs, files in os.walk(rootdir):
         frames = []
@@ -20,7 +21,10 @@ if __name__ == "__main__":
 
             if len(seqs) % 100 == 0:
                 print("{}/91701...".format(len(seqs)))
+        if len(seqs) == 100:
+            break
 
+    print("Processing...")
     hr = np.stack(seqs, axis=0)
 
     hr = np.swapaxes(hr,-1,-3)
@@ -33,10 +37,14 @@ if __name__ == "__main__":
     print("train: ", hr_train.shape)
     print("test: ", hr_test.shape)
 
-    with h5py.File(os.path.join(save_dir, "vimeo_train.hdf5"), "w") as data_file:
+    print("Saving...")
+    
+    with h5py.File(os.path.join(save_dir, "vimeo_train_sample.hdf5"), "w") as data_file:
         data_file.create_dataset("data_hr", data=hr_train)
         data_file.create_dataset("data_lr", data=hr_train)
 
-    with h5py.File(os.path.join(save_dir, "vimeo_test.hdf5"), "w") as data_file:
+    with h5py.File(os.path.join(save_dir, "vimeo_test_sample.hdf5"), "w") as data_file:
         data_file.create_dataset("data_hr", data=hr_test)
         data_file.create_dataset("data_lr", data=hr_test)
+    
+    print("Done.")

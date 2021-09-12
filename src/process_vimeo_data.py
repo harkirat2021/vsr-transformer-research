@@ -3,6 +3,10 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from process_data import *
+import argparse
+
+parser = argparse.ArgumentParser(description="Process vimeo data")
+parser.add_argument('--start', type=str, help="start index", required=True)
 
 if __name__ == "__main__":
     rootdir = '/home/harkirat/data/vimeo/vimeo_septuplet/sequences'
@@ -10,8 +14,10 @@ if __name__ == "__main__":
 
     print("Reading files...")
     seqs = []
+    i = 0
     for subdir, dirs, files in os.walk(rootdir):
         frames = []
+        i += 1
         for file in files:
             im = cv2.imread(os.path.join(subdir, file)) / 255
             frames.append(im)
@@ -19,8 +25,8 @@ if __name__ == "__main__":
             frames_arr = np.stack(frames, axis=0)
             seqs.append(frames_arr)
 
-            if len(seqs) % 100 == 0:
-                print("{}/91701...".format(len(seqs)))
+            if len(seqs) % 10 == 0:
+                print("{} - {}/91701...".format(len(seqs), i))
 
     print("Processing...")
     hr = np.stack(seqs, axis=0)

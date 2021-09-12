@@ -33,7 +33,7 @@ class VideoDataModule(pl.LightningDataModule):
     def prepare_dataset(self, data_path, seq_len, patch_shape, train_valid_split, has_color_channel, prepared_seq, prepared_patch):
         y = read_hdf5(filepath=data_path, group_name="data_hr")
         x = read_hdf5(filepath=data_path, group_name="data_lr")
-
+        
         # Add 1D color channel if data does not have it
         if not has_color_channel:
             x = np.expand_dims(x, axis=-3)

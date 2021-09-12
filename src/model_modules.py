@@ -405,7 +405,7 @@ class PatchDecode(nn.Module):
         
         # TODO - temp for just this instance of the model
         self.fc1 = nn.Linear(16 * emsize, f * c * w * h)
-        self.conv1 = nn.Conv3d(1, n_hidden, 3, padding=1)
+        self.conv1 = nn.Conv3d(c, n_hidden, 3, padding=1)
         self.layers = torch.nn.ModuleList(
             [
                 nn.Sequential(

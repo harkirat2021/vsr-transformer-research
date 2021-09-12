@@ -69,7 +69,7 @@ if __name__ == "__main__":
     data_module = VideoDataModule(dataset_name=args.data.lower(), train_data_path=config[args.data.upper()]["PATH"],
                                 batch_size=config["BATCH_SIZE"], scale=config[args.data.upper()]["SCALE"],
                                 seq_len=config[args.data.upper()]["SEQ_LEN"], patch_shape=config[args.data.upper()]["HR_PATCH_SHAPE"],
-                                train_valid_split=config["TRAIN_VALID_SPLIT"], has_color_channel=False,
+                                train_valid_split=config["TRAIN_VALID_SPLIT"], has_color_channel=config[args.data.upper()]["HAS_COLOR_CHANNEL"],
                                 prepared_seq=True, prepared_patch=True)
     print("LR data shape: ", data_module.train_dataset[:][0].shape)
     print("HR data shape: ", data_module.train_dataset[:][1].shape)

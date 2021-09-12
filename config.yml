@@ -8,7 +8,8 @@ TEST_DATA: {
   SCALE: 4,
   SEQ_LEN: 5,
   NUM_CHANNELS: 1,
-  HR_PATCH_SHAPE: [32, 32]
+  HR_PATCH_SHAPE: [32, 32],
+  HAS_COLOR_CHANNEL: False
 }
 
 MYAMAR_DATA: {
@@ -16,15 +17,17 @@ MYAMAR_DATA: {
   SCALE: 4,
   SEQ_LEN: 5,
   NUM_CHANNELS: 1,
-  HR_PATCH_SHAPE: [32, 32]
+  HR_PATCH_SHAPE: [32, 32],
+  HAS_COLOR_CHANNEL: False
 }
 
-VIMEO90K_DATA: {
-  PATH: "/home/xijun/sony/train_u4_no_mc_filtered.hdf5",
+VIMEO_SAMPLE_DATA: {
+  PATH: "data/temp/vimeo_test_sample.hdf5",
   SCALE: 4,
   SEQ_LEN: 7,
   NUM_CHANNELS: 3,
-  HR_PATCH_SHAPE: [32, 32]
+  HR_PATCH_SHAPE: [32, 32],
+  HAS_COLOR_CHANNEL: True
 }
 
 BATCH_SIZE: 32

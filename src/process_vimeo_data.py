@@ -25,7 +25,7 @@ if __name__ == "__main__":
             frames_arr = np.stack(frames, axis=0)
             seqs.append(frames_arr)
 
-            if len(seqs) % 10 == 0:
+            if len(seqs) % 50 == 0:
                 print("{} - {}/91701...".format(len(seqs), i))
 
     print("Processing...")

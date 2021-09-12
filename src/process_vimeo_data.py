@@ -3,14 +3,13 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from process_data import *
-import argparse
-
-parser = argparse.ArgumentParser(description="Process vimeo data")
-parser.add_argument('--start', type=str, help="start index", required=True)
 
 if __name__ == "__main__":
     rootdir = '/home/harkirat/data/vimeo/vimeo_septuplet/sequences'
     save_dir = "/home/harkirat/data/vimeo/processed"
+
+    start = 0
+    end = 15000
 
     print("Reading files...")
     seqs = []
@@ -18,6 +17,10 @@ if __name__ == "__main__":
     for subdir, dirs, files in os.walk(rootdir):
         frames = []
         i += 1
+        if i < start:
+            continue
+        if i > end:
+            break
         for file in files:
             im = cv2.imread(os.path.join(subdir, file)) / 255
             frames.append(im)
@@ -45,10 +48,10 @@ if __name__ == "__main__":
 
     with h5py.File(os.path.join(save_dir, "vimeo_train_full.hdf5"), "w") as data_file:
         data_file.create_dataset("data_hr", data=hr_train)
-        data_file.create_dataset("data_lr", data=hr_train)
+        #data_file.create_dataset("data_lr", data=hr_train)
 
     with h5py.File(os.path.join(save_dir, "vimeo_test_full.hdf5"), "w") as data_file:
         data_file.create_dataset("data_hr", data=hr_test)
-        data_file.create_dataset("data_lr", data=hr_test)
+        #data_file.create_dataset("data_lr", data=hr_test)
     
     print("Done.")

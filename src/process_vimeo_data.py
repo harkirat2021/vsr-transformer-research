@@ -9,7 +9,7 @@ if __name__ == "__main__":
     save_dir = "/home/harkirat/data/vimeo/processed"
 
     start = 0
-    end = 15000
+    end = 10000
 
     print("Reading files...")
     seqs = []

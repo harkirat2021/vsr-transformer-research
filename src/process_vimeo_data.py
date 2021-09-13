@@ -44,7 +44,7 @@ if __name__ == "__main__":
     #hr_test = hr[int(0.8*hr.shape[0]):]
 
     print("train: ", hr_train.shape)
-    print("test: ", hr_test.shape)
+    #print("test: ", hr_test.shape)
 
     print("Saving...")
 

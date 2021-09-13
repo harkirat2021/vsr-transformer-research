@@ -9,7 +9,7 @@ if __name__ == "__main__":
     save_dir = "/home/harkirat/data/vimeo/processed"
 
     start = 0
-    end = 10000
+    end = 5000
 
     print("Reading files...")
     seqs = []
@@ -34,12 +34,14 @@ if __name__ == "__main__":
     print("Processing...")
     hr = np.stack(seqs, axis=0)
 
+    del seqs # Free memory
+
     hr = np.swapaxes(hr,-1,-3)
     hr = np.swapaxes(hr,-1,-2)
     hr = prepare_patches(hr, patch_shape=(32, 32), color_channel=True)
 
-    hr_train = hr[:int(0.8*hr.shape[0])]
-    hr_test = hr[int(0.8*hr.shape[0]):]
+    hr_train = hr[:int(1*hr.shape[0])]
+    #hr_test = hr[int(0.8*hr.shape[0]):]
 
     print("train: ", hr_train.shape)
     print("test: ", hr_test.shape)
@@ -50,8 +52,8 @@ if __name__ == "__main__":
         data_file.create_dataset("data_hr", data=hr_train)
         #data_file.create_dataset("data_lr", data=hr_train)
 
-    with h5py.File(os.path.join(save_dir, "vimeo_test_full.hdf5"), "w") as data_file:
-        data_file.create_dataset("data_hr", data=hr_test)
-        #data_file.create_dataset("data_lr", data=hr_test)
+    #with h5py.File(os.path.join(save_dir, "vimeo_test_full.hdf5"), "w") as data_file:
+    #    data_file.create_dataset("data_hr", data=hr_test)
+    #    #data_file.create_dataset("data_lr", data=hr_test)
     
     print("Done.")

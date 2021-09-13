@@ -8,7 +8,7 @@ if __name__ == "__main__":
     rootdir = '/home/harkirat/data/vimeo/vimeo_septuplet/sequences'
     save_dir = "/home/harkirat/data/vimeo/processed"
 
-    for i in range(2, 10):
+    for i in range(3, 4):
         start = i * 5000
         end = start + 5000
 

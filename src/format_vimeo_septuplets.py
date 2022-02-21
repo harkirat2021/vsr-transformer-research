@@ -38,8 +38,7 @@ def run_format_sep(sep_dir, group_dirs, out_dir, data_name):
 
     # Save
     with h5py.File(out_dir, 'a') as hf:
-        hf.create_dataset("data_lr",  data=septuplet_patches)
-        hf.create_dataset("data_hr",  data=septuplet_patches)
+        hf.create_dataset("data_hr",  data=septuplet_patches[:50_000])
 
 if __name__ == "__main__":
     sep_dir = sys.argv[1]

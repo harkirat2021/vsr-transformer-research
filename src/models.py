@@ -454,4 +454,113 @@ class VSRCNN1(VSRModelBase):
 
         return y
 
+""" UNet using Residual BottleNeck Blocks and custom transform unit """
+class VSRRU_1(nn.Module):
+    def __init__(self, transform_unit, n_channels, exp_channels, bottle_neck_exp_channels, n_layers, scale_factor):
+        super().__init__()
 
+        self.up = nn.Upsample(scale_factor=(1, scale_factor, scale_factor), mode='trilinear')
+
+        self.transform_unit = transform_unit
+
+        self.expand_cov = nn.Conv2d(n_channels, exp_channels, kernel_size=3, padding=1)
+        self.compress_cov = nn.Conv2d(exp_channels, n_channels, kernel_size=3, padding=1)
+
+        self.res_blocks_in = nn.ModuleList([ResBottleNeckBlock(n_channels, bottle_neck_exp_channels) for i in range(n_layers)])
+        self.res_blocks_out = nn.ModuleList([ResBottleNeckBlock(n_channels, bottle_neck_exp_channels) for i in range(n_layers)])
+    
+    def forward(self, x):
+        # Upsample
+        x = self.up(x)
+
+        # Join frames with batch
+        in_shape = x.shape
+        x = x.reshape((in_shape[0] * in_shape[1], in_shape[2], in_shape[3], in_shape[4]))
+
+        # In res blocks
+        x_i = []
+        for i, layer in enumerate(self.res_blocks_in):
+            x = layer(x)
+            x_i.append(x.clone())
+
+        # Expand to exand channels
+        x = F.relu(self.expand_cov(x))
+
+        # Transform unit
+        x = self.transform_unit(x)
+        
+        # Compress from exand channels
+        x = F.relu(self.compress_cov(x))
+
+        # Out res blocks
+        x_i.reverse()
+        for i, layer in enumerate(self.res_blocks_out):
+            x = layer(x + x_i[i])
+        
+        # Split frames and batch
+        x = x.reshape(in_shape)
+
+        return x
+
+class VSRRU_LA_1(pl.LightningModule):
+    def __init__(self, n_transform_layers, n_channels, exp_channels, bottle_neck_exp_channels, n_layers, scale_factor):
+        super().__init__()
+        self.transform_unit = LocalAttentionLayers(exp_channels, exp_channels, kH=7, kW=7, n_layers=n_transform_layers)
+        self.model = VSRRU_1(self.transform_unit, n_channels, exp_channels, bottle_neck_exp_channels, n_layers, scale_factor)
+    
+    def forward(self, x):
+        return self.model(x)
+
+    def mse_loss(self, outputs, targets):
+        return F.mse_loss(outputs, targets)
+
+    def training_step(self, train_batch, batch_idx):
+        x, y = train_batch
+        outputs = self.forward(x)
+        # Compute loss between all, but first and last frame
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
+        self.log('train_loss', loss)
+        return loss
+
+    def validation_step(self, val_batch, batch_idx):
+        x, y = val_batch
+        print(x.shape)
+        outputs = self.forward(x)
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
+        self.log('valid_loss', loss)
+
+    def configure_optimizers(self):
+      optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+      return optimizer
+
+ # changes
+class VSRRU_CV_1(pl.LightningModule):
+    def __init__(self, n_transform_layers, n_channels, exp_channels, bottle_neck_exp_channels, n_layers, scale_factor):
+        super().__init__()
+        self.transform_unit = ConvResLayers(exp_channels, exp_channels, n_transform_layers)
+        self.model = VSRRU_1(self.transform_unit, n_channels, exp_channels, bottle_neck_exp_channels, n_layers, scale_factor)
+        
+    def forward(self, x):
+        return self.model(x)
+
+    def mse_loss(self, outputs, targets):
+        return F.mse_loss(outputs, targets)
+
+    def training_step(self, train_batch, batch_idx):
+        x, y = train_batch
+        outputs = self.forward(x)
+        # Compute loss between all, but first and last frame
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
+        self.log('train_loss', loss)
+        return loss
+    
+    def validation_step(self, val_batch, batch_idx):
+        x, y = val_batch
+        print(x.shape)
+        outputs = self.forward(x)
+        loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
+        self.log('valid_loss', loss)
+
+    def configure_optimizers(self):
+      optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+      return optimizer

@@ -58,3 +58,9 @@ VSRSA1_1: {embed_dim: 128, n_esthidden: 128, n_estlayers: 2, n_Convhidden: 128, 
 
 # 42.1 K Params
 VSRCNN1_1: {n_hidden: 32, n_layers: 4}
+
+#### OTHER ####
+
+VSRRULA1_1: {n_transform_layers: 10, n_channels: 3, exp_channels: 16, bottle_neck_exp_channels: 16, n_layers: 8, scale_factor: 4}
+
+VSRRUCV1_1: {n_transform_layers: 10, n_channels: 3, exp_channels: 16, bottle_neck_exp_channels: 16, n_layers: 8, scale_factor: 4}

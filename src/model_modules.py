@@ -499,3 +499,112 @@ class TransformerModel(nn.Module):
         output = self.transformer_encoder(src, src_mask)
         output = self.frame_decoder(output)
         return output
+
+
+
+def count_params(model):
+    return sum(p.numel() for p in model.parameters())
+    
+""" Residual BottleNeck Unit """
+class ResBottleNeckBlock(nn.Module):
+    def __init__(self, n_channels, exp_channels):
+        super().__init__()
+        self.conv_1x1_1 = nn.Conv2d(n_channels, exp_channels, kernel_size=1)
+        self.batch_norm_1 = nn.BatchNorm2d(exp_channels)
+
+        self.conv_3x3_1 = nn.Conv2d(exp_channels, exp_channels, kernel_size=3, padding=1)
+        self.batch_norm_2 = nn.BatchNorm2d(exp_channels)
+
+        self.conv_3x3_2 = nn.Conv2d(exp_channels, exp_channels, kernel_size=3, padding=1)
+        self.batch_norm_3 = nn.BatchNorm2d(exp_channels)
+
+        self.conv_1x1_2 = nn.Conv2d(exp_channels, n_channels, kernel_size=1)
+        self.batch_norm_4 = nn.BatchNorm2d(n_channels)
+    
+    def forward(self, x):
+        x_in = x.clone()
+        x = self.batch_norm_1(F.relu(self.conv_1x1_1(x)))
+        x = self.batch_norm_2(F.relu(self.conv_3x3_1(x)))
+        x = self.batch_norm_3(F.relu(self.conv_3x3_2(x)))
+        x = self.batch_norm_4(F.relu(self.conv_1x1_2(x)))
+        return x + x_in
+
+""" Local Attention Unit """
+class TorchLocalAttention(nn.Module):
+    def __init__(self, inp_channels, out_channels, kH, kW):
+        super(TorchLocalAttention, self).__init__()
+        self.conv1 = nn.Conv2d(inp_channels, out_channels, kernel_size=1, bias=False)
+        self.conv2 = nn.Conv2d(inp_channels, out_channels, kernel_size=1, bias=False)
+        self.conv3 = nn.Conv2d(inp_channels, out_channels, kernel_size=1, bias=False)
+        self.kH = kH
+        self.kW = kW
+
+    @staticmethod
+    def f_similar(x_theta, x_phi, kh, kw):
+        n, c, h, w = x_theta.size()  # (N, inter_channels, H, W)
+        pad = (kh // 2, kw // 2)
+        x_theta = x_theta.permute(0, 2, 3, 1).contiguous()
+        x_theta = x_theta.view(n * h * w, 1, c)
+
+        x_phi = F.unfold(x_phi, kernel_size=(kh, kw), stride=1, padding=pad)
+        x_phi = x_phi.contiguous().view(n, c, kh * kw, h * w)
+        x_phi = x_phi.permute(0, 3, 1, 2).contiguous()
+        x_phi = x_phi.view(n * h * w, c, kh * kw)
+
+        out = torch.matmul(x_theta, x_phi)
+        out = out.view(n, h, w, kh * kw)
+
+        return out
+
+    @staticmethod
+    def f_weighting(x_theta, x_phi, kh, kw):
+        n, c, h, w = x_theta.size()  # (N, inter_channels, H, W)
+        pad = (kh // 2, kw // 2)
+        x_theta = F.unfold(x_theta, kernel_size=(kh, kw), stride=1, padding=pad)
+        x_theta = x_theta.permute(0, 2, 1).contiguous()
+        x_theta = x_theta.view(n * h * w, c, kh * kw)
+
+        x_phi = x_phi.view(n * h * w, kh * kw, 1)
+
+        out = torch.matmul(x_theta, x_phi)
+        out = out.squeeze(-1)
+        out = out.view(n, h, w, c)
+        out = out.permute(0, 3, 1, 2).contiguous()
+
+        return out
+
+    def forward(self, x):
+        x1 = self.conv1(x)
+        x2 = self.conv2(x)
+        x3 = self.conv3(x)
+
+        weight = self.f_similar(x1, x2, self.kH, self.kW)
+        weight = F.softmax(weight, -1)
+        out = self.f_weighting(x3, weight, self.kH, self.kW)
+
+        return out
+
+""" Convolutional Residual Units """
+class LocalAttentionLayers(nn.Module):
+    def __init__(self, inp_channels, out_channels, kH, kW, n_layers):
+        super().__init__()
+
+        self.local_attention_blocks = nn.ModuleList([TorchLocalAttention(inp_channels, out_channels, kH, kW) for i in range(n_layers)])
+    
+    def forward(self, x):
+        for i, layer in enumerate(self.local_attention_blocks):
+            x = layer(x)
+        return x
+
+""" Convolutional Residual Units """
+class ConvResLayers(nn.Module):
+    def __init__(self, n_channels, exp_channels, n_layers):
+        super().__init__()
+
+        self.res_blocks = nn.ModuleList([ResBottleNeckBlock(n_channels, exp_channels) for i in range(n_layers)])
+    
+    def forward(self, x):
+        for i, layer in enumerate(self.res_blocks):
+            x = layer(x)
+        return x
+

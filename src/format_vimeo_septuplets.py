@@ -3,6 +3,7 @@ import sys
 import cv2
 import numpy as np
 import h5py
+from process_data import *
 
 # Create numpy array of eptuplets from given folders
 SEPTUPLET_DIR = "data/temp/temp_sep_data"
@@ -28,9 +29,17 @@ def run_format_sep(sep_dir, group_dirs, out_dir, data_name):
 
     septuplet_data = np.stack(seps)
 
+    septuplet_data = np.swapaxes(septuplet_data,-1,-3)
+    septuplet_data = np.swapaxes(septuplet_data,-1,-2)
+
+    print(septuplet_data.shape)
+    septuplet_patches = prepare_patches(septuplet_data, patch_shape=(32, 32), color_channel=True)
+    print(septuplet_patches.shape)
+
     # Save
     with h5py.File(out_dir, 'a') as hf:
-        hf.create_dataset(data_name,  data=septuplet_data)
+        hf.create_dataset("data_lr",  data=septuplet_patches)
+        hf.create_dataset("data_hr",  data=septuplet_patches)
 
 if __name__ == "__main__":
     sep_dir = sys.argv[1]
@@ -38,6 +47,4 @@ if __name__ == "__main__":
     out_dir = sys.argv[3]
     data_name = sys.argv[3]
     run_format_sep(sep_dir, group_dirs, out_dir, data_name)
-
-    with h5py.File(out_dir, 'r') as hf:
-        data = hf[data_name][:]
+        

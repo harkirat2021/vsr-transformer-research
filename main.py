@@ -103,6 +103,12 @@ if __name__ == "__main__":
         model = VSRTP3(**general_settings, **model_settings[args.model_settings.upper()])
     elif str(args.model_type).lower() == "vsrtp4":
         model = VSRTP4(**general_settings, **model_settings[args.model_settings.upper()])
+    
+    # VSR RU
+    elif str(args.model_type).lower() == "VSRRULA1".lower():
+        model = VSRRU_LA_1(**model_settings[args.model_settings.upper()])
+    elif str(args.model_type).lower() == "VSRRUCV1".lower():
+        model = VSRRU_CV_1(**model_settings[args.model_settings.upper()])
     else:
         raise Exception("Model not found")
 

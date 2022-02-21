@@ -524,7 +524,6 @@ class VSRRU_LA_1(pl.LightningModule):
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
-        print(x.shape)
         outputs = self.forward(x)
         loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
         self.log('valid_loss', loss)

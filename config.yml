@@ -22,8 +22,8 @@ MYAMAR_DATA: {
 }
 
 VIMEO_SAMPLE_DATA: {
-  PATH: "../data/vimeo/processed/vimeo_subset_v3.h5",
-  #PATH: "data/temp_2/vimeo_subset_v7.h5",
+  #PATH: "../data/vimeo/processed/vimeo_subset_v3.h5",
+  PATH: "data/temp/vimeo_subset_v7.h5",
   SCALE: 4,
   SEQ_LEN: 7,
   NUM_CHANNELS: 3,

@@ -71,9 +71,12 @@ if __name__ == "__main__":
                                 seq_len=config[args.data.upper()]["SEQ_LEN"], patch_shape=config[args.data.upper()]["HR_PATCH_SHAPE"],
                                 train_valid_split=config["TRAIN_VALID_SPLIT"], has_color_channel=config[args.data.upper()]["HAS_COLOR_CHANNEL"],
                                 prepared_seq=True, prepared_patch=True)
+    
     print("LR data shape: ", data_module.train_dataset[:][0].shape)
     print("HR data shape: ", data_module.train_dataset[:][1].shape)
 
+    print("max: {}, min: {}".format(torch.max(data_module.train_dataset[:][0]), torch.min(data_module.train_dataset[:][0])))
+    
     #### Init model ####
     print("Initializing model...")
     general_settings = {"name": args.model_settings.lower(),

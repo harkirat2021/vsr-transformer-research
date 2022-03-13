@@ -559,6 +559,7 @@ class VSRRU_CV_1(pl.LightningModule):
         outputs = self.forward(x)
         loss = self.mse_loss(outputs[:,outputs.shape[1]//2+1,:,:,:], y[:,0,:,:,:])
         self.log('valid_loss', loss)
+        print(loss)
 
     def configure_optimizers(self):
       optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)

@@ -34,6 +34,13 @@ class VideoDataModule(pl.LightningDataModule):
         y = read_hdf5(filepath=data_path, group_name="data_hr")
         x = read_hdf5(filepath=data_path, group_name="data_hr")
         
+        # Scale data
+        if np.max(x) > 1.:
+            x = x / np.max(x)
+        
+        if np.max(y) > 1.:
+            y = y / np.max(y)
+        
         # Add 1D color channel if data does not have it
         if not has_color_channel:
             x = np.expand_dims(x, axis=-3)
